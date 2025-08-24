@@ -22,3 +22,7 @@ Features
 Notes
 
 - This is a minimal example for learning. Do not use file-based auth for production.
+    
+# Screenshots
+
+![](./assets/screenshot.png)
