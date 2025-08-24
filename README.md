@@ -39,6 +39,65 @@ Each project is small but practical — covering APIs, authentication, databases
    └── day30-microservices-project/
 
 📅 Daily Projects
+🚀 30 Days Backend Challenge
+
+Welcome to my 30 Projects in 30 Days challenge! 🎯
+The goal is to improve backend skills across multiple programming languages by building one project per day.
+
+Each project is small but practical — covering APIs, authentication, databases, microservices, CLI tools, and automation scripts.
+
+## Project structure
+
+```
+30DaysBackendChallenge/
+├── day01-php-login/
+│   ├── dashboard.php
+│   ├── index.php
+│   ├── login.php
+│   ├── README.md
+│   ├── register.php
+│   ├── users.txt
+│   └── assets/
+│       ├── app.js
+│       ├── icon-lock.svg
+│       ├── icon-shield.svg
+│       ├── icon-speed.svg
+│       ├── icon-theme.svg
+│       ├── illustration.svg
+│       └── style.css
+├── day02-python-url-shortener/
+├── day03-node-task-api/
+├── day04-go-quotes-api/
+├── day05-ruby-cli-todo/
+├── day06-csharp-file-uploader/
+├── day07-bash-backup-script/
+├── day08-node-jwt-auth/
+├── day09-django-blog/
+├── day10-laravel-cart-api/
+├── day11-go-student-api/
+├── day12-rust-password-manager/
+├── day13-sql-library-schema/
+├── day14-java-banking-api/
+├── day15-node-payment-gateway/
+├── day16-fastapi-weather/
+├── day17-php-forum-api/
+├── day18-go-chat-server/
+├── day19-rails-event-booking/
+├── day20-csharp-inventory-api/
+├── day21-bash-python-deploy/
+├── day22-node-redis-cache/
+├── day23-fastapi-image-service/
+├── day24-laravel-email-api/
+├── day25-go-rate-limiter/
+├── day26-rust-log-parser/
+├── day27-java-roles-api/
+├── day28-csharp-notification-service/
+├── day29-django-social-api/
+└── day30-microservices-project/
+```
+
+## Daily Projects
+
 Day	Project	Language/Stack	Description
 01	🔑 Login & Registration System	PHP	Basic user signup/login with file storage
 02	🔗 URL Shortener	Python (Flask)	Shorten and manage URLs with SQLite
@@ -70,7 +129,7 @@ Day	Project	Language/Stack	Description
 28	🔔 Notification Service	C# + SignalR	Real-time push notifications
 29	🌍 Social Media API	Django REST	Posts, likes & user interactions
 30	🌐 Microservices Project	Node.js + Python + Go	Auth, Posts & Notifications microservices
-🎯 Objectives
+## Objectives
 
 Build 30 backend projects in different programming languages.
 
@@ -78,22 +137,22 @@ Gain hands-on experience with APIs, databases, caching, authentication, deployme
 
 Create a versatile portfolio showcasing backend skills.
 
-⚡ How to Run
+## How to Run
 
 Each project has its own folder with a README.md explaining:
 
-📌 Project goal
-
-⚙️ Tech stack
-
-▶️ How to run
+- 📌 Project goal
+- ⚙️ Tech stack
+- ▶️ How to run
 
 Example (for Day 1 project):
 
+```
 cd day01-php-login
 php -S localhost:8000
+```
 
-👨🏽‍💻 Author
+## Author
 
 Enya Elvis ✨
 Backend Developer | Full-stack Enthusiast | Tech Explorer
