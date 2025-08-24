@@ -1,0 +1,80 @@
+:root{
+  /* Accessible indigo palette */
+  --accent:#2563EB; /* indigo-600 */
+  --accent-600:#1d4ed8;
+  --muted:#94a3b8;
+  --bg:#071033;      /* primary background color (top) */
+  --bg-2:#081129;    /* secondary background color (bottom) */
+  --card:#071428;
+  --glass: rgba(255,255,255,0.03);
+  --text:#e6eef8;    /* page text color */
+  --success:#16a34a;
+  --danger:#ef4444;
+}
+*{box-sizing:border-box}
+body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; background:linear-gradient(180deg,var(--bg) 0%, var(--bg-2) 100%); color:var(--text); min-height:100vh}
+.container{max-width:1000px;margin:32px auto;padding:0 16px}
+.site-header{background:transparent;padding:18px 0}
+.brand{font-weight:700;color:var(--accent);text-decoration:none;font-size:18px}
+.nav{float:right}
+.nav a{color:var(--muted);margin-left:16px;text-decoration:none}
+.theme-toggle{background:transparent;border:none;padding:6px 8px;border-radius:8px;cursor:pointer;margin-left:8px}
+.theme-toggle img{width:20px;height:20px}
+.hero{padding:24px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 6px 24px rgba(2,6,23,0.6)}
+.card{background:var(--card)}
+h1{margin:0 0 12px}
+.muted{color:var(--muted)}
+/* Buttons */
+.btn{display:inline-block;padding:10px 16px;border-radius:10px;background:var(--accent);color:white;text-decoration:none;margin-right:8px;box-shadow:0 6px 18px rgba(37,99,235,0.18)}
+.btn:hover{background:var(--accent-600)}
+.btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--accent)}
+form{margin-top:12px}
+input[type=text],input[type=password]{width:100%;padding:12px 14px;margin:8px 0;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+label{display:block;margin-top:8px;font-size:14px}
+.card.auth{padding:24px}
+.error{color:var(--danger)}
+.success{color:var(--success)}
+footer.site-footer{padding:18px 0;color:var(--muted);text-align:center;margin-top:24px}
+@media (max-width:600px){.nav{display:none}.container{padding:0 12px}}
+
+/* Hero layout with illustration */
+.hero-grid{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:center}
+.hero-illustration{width:100%;max-width:360px;border-radius:12px}
+.features{display:flex;gap:12px;margin-top:18px}
+.feature{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:10px;display:flex;gap:12px;align-items:start}
+.feature img.icon{width:36px;height:36px}
+.feature h4{margin:0;font-size:16px}
+.feature p{margin:6px 0 0;color:var(--muted);font-size:14px}
+@media (max-width:780px){.hero-grid{grid-template-columns:1fr;}.hero-illustration{max-width:100%}.features{flex-direction:column}}
+
+/* Skip link */
+.skip-link{position:absolute;left:12px;top:8px;background:#fff;color:#0b1220;padding:8px 12px;border-radius:6px;transform:translateY(-120%);transition:transform .18s ease}
+.skip-link:focus{transform:translateY(0)}
+
+/* Entrance animation */
+.fade-in{opacity:0;transform:translateY(8px);animation:fadeInUp .5s forwards}
+@keyframes fadeInUp{to{opacity:1;transform:none}}
+
+/* Card hover subtle lift */
+.card:hover{transform:translateY(-4px);transition:transform .18s ease,box-shadow .18s ease}
+
+/* Toggle password button */
+.toggle-password{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:6px 8px;border-radius:8px;margin-left:8px;cursor:pointer}
+.field-row{display:flex;align-items:center}
+.field-row .toggle-password{flex:0 0 auto}
+
+/* Light theme (pure white background) */
+:root.light{
+  --accent:#1e293b;
+  --accent-600:#111827;
+  --muted:#475569;
+  --bg:#ffffff;    /* primary background - top */
+  --bg-2:#ffffff;   /* secondary background - bottom */
+  --card:#ffffff;   /* card surfaces */
+  --text:#0f172a;   /* dark text for readability */
+  --glass: rgba(2,6,23,0.04);
+  --muted-border: rgba(15,23,42,0.06);
+  color-scheme:light;
+}
+
+body{transition:background .18s ease,color .18s ease}
