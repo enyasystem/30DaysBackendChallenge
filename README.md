@@ -1,16 +1,9 @@
-🚀 30 Days Backend Challenge
+# 🚀 30 Days Backend Challenge
 
 Welcome to my 30 Projects in 30 Days challenge! 🎯
 The goal is to improve backend skills across multiple programming languages by building one project per day.
 
 Each project is small but practical — covering APIs, authentication, databases, microservices, CLI tools, and automation scripts.
-
-📅 Daily Projects
-# 🚀 30 Days Backend Challenge
-
-Welcome to the 30 Projects in 30 Days challenge — a hands-on plan to build a backend project every day and grow across languages and stacks.
-
-Each project is small and practical: APIs, auth, databases, caching, CLI tools, deployment scripts, and more.
 
 ## Table of contents
 
@@ -20,7 +13,7 @@ Each project is small and practical: APIs, auth, databases, caching, CLI tools, 
 - [How to run](#how-to-run)
 - [Author](#author)
 
-## Project structure
+## 📂 Project Structure
 
 ```
 30DaysBackendChallenge/
@@ -70,7 +63,7 @@ Each project is small and practical: APIs, auth, databases, caching, CLI tools, 
 └── day30-microservices-project/
 ```
 
-## Daily Projects
+## 📅 Daily Projects
 
 | Day | Project | Language / Stack | Description |
 | ---: | --- | --- | --- |
