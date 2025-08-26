@@ -100,6 +100,39 @@ Each project is small but practical — covering APIs, authentication, databases
 
 ## Objectives
 
+## Day 02 — URL Shortener (Python / Flask)
+
+A small, practical URL shortener built with Flask and SQLite. The service provides a minimal web UI to create short links, a JSON API for programmatic use, and tests that run against an in-memory SQLite database.
+
+Key features
+- Shorten long URLs to short codes
+- Redirect short codes to original URLs and track click counts
+- Optional expiry for short links
+- Minimal, responsive frontend with copy-to-clipboard
+
+Quick start (PowerShell)
+
+```powershell
+cd day02-python-url-shortener
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+# copy .env.example to .env and edit values if needed
+$Env:FLASK_APP = 'app:create_app()'
+$Env:FLASK_ENV = 'development'
+flask run
+```
+
+Run tests
+
+```powershell
+cd day02-python-url-shortener
+.\.venv\Scripts\Activate.ps1
+pytest -q
+```
+
+See `day02-python-url-shortener/README.md` for full implementation notes and advanced configuration.
+
 - Build 30 backend projects across different languages and stacks.
 - Gain practical experience with APIs, databases, caching, authentication, and deployment.
 - Produce a portfolio of small, demonstrable backend projects.
