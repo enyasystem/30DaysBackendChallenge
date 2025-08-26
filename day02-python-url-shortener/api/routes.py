@@ -6,19 +6,39 @@ to `services.shortener`. Errors are translated to proper HTTP responses.
 """
 from flask import Blueprint, request, jsonify, current_app, redirect
 from datetime import datetime
-from flask_limiter.util import get_remote_address
-from flask_limiter import Limiter
 
 from services.shortener import create_short_url, get_by_code, increment_clicks, InvalidURLError, GenerationError
 from models import db
 
 bp = Blueprint('api', __name__)
 
-# Note: limiter is initialized in app factory; we can use decorator via current_app.extensions
-def _limiter():
-    """Helper to access configured limiter instance (if any)."""
-    limiter = current_app.extensions.get("limiter")
-    return limiter
+
+@bp.route('/', methods=['GET'])
+def index():
+    """Simple landing page for the service.
+
+    Returns a minimal HTML page so visiting the root URL doesn't show 404.
+    """
+    base = current_app.config.get('BASE_URL') or request.host_url.rstrip('/')
+    html = f"""
+    <html>
+      <head><title>URL Shortener</title></head>
+      <body style="font-family: Arial, sans-serif;">
+        <h1>URL Shortener</h1>
+        <p>Service is running. Use the <code>/shorten</code> endpoint to create short links.</p>
+        <p>Example: <code>POST {base}/shorten</code></p>
+        <p>API info endpoint: <a href="{base}/api/info/your_code">/api/info/&lt;code&gt;</a></p>
+      </body>
+    </html>
+    """
+    return html, 200
+
+
+@bp.route('/health', methods=['GET'])
+def health():
+    """Health-check endpoint returning JSON status."""
+    return jsonify({"status": "ok", "service": "url-shortener"}), 200
+
 
 @bp.route('/shorten', methods=['POST'])
 def shorten():
@@ -47,6 +67,7 @@ def shorten():
     base = current_app.config.get('BASE_URL') or request.host_url.rstrip('/')
     return jsonify(url_obj.to_dict(base_url=base)), 201
 
+
 @bp.route('/api/info/<string:code>', methods=['GET'])
 def info(code):
     """Return metadata for a code."""
@@ -55,6 +76,7 @@ def info(code):
         return jsonify({"error": "not found"}), 404
     base = current_app.config.get('BASE_URL') or request.host_url.rstrip('/')
     return jsonify(url_obj.to_dict(base_url=base))
+
 
 @bp.route('/<string:code>', methods=['GET'])
 def redirect_code(code):
