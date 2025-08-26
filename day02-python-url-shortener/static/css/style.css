@@ -21,10 +21,10 @@
 /* Dark mode: prefer-color-scheme respects system preference */
 @media (prefers-color-scheme: dark){
   :root{
-    /* --color-bg: #f6da9f;      dark page background */
-    /* --color-surface: #f6da9f;  dark card */
-    --color-text: #e6eef8;     /* light text */
-    --color-muted: #94a3b8;    /* muted text */
+    --color-bg: #f6da9f;      /*dark page background*/
+    --color-surface: #f6da9f;  /*dark card*/
+    --color-text: #fdfdfd;     /* light text */
+    --color-muted: #0b0c0c;    /* muted text */
   --color-primary: #0891b2;  /* calm cyan-teal for dark */
   --color-primary-600: #067a99;
   --color-accent: #06b6d4;
