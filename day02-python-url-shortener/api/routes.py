@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app, redirect
+from flask import Blueprint, request, jsonify, current_app, redirect, render_template
 from datetime import datetime
 
 from services.shortener import (
@@ -14,7 +14,8 @@ bp = Blueprint('api', __name__)
 
 @bp.route('/', methods=['GET'])
 def index():
-    return '<html><body><h1>URL Shortener</h1><p>POST /shorten to create links.</p></body></html>', 200
+    # render the template-based frontend
+    return render_template('index.html'), 200
 
 
 @bp.route('/health', methods=['GET'])

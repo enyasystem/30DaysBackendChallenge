@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body>
+    <!-- Inline SVG sprite: simple premium-looking icons -->
+    <svg style="display:none" aria-hidden="true">
+      <symbol id="icon-link" viewBox="0 0 24 24">
+        <path d="M10.59 13.41a1 1 0 0 0 1.41 0L15 10.41a3 3 0 0 0-4.24-4.24L9.17 6.76" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <path d="M13.41 10.59a1 1 0 0 0-1.41 0L9 13.59a3 3 0 0 0 4.24 4.24l1.59-1.59" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </symbol>
+      <symbol id="icon-shield" viewBox="0 0 24 24">
+        <path d="M12 2l7 3v5c0 5-3.5 9.7-7 12-3.5-2.3-7-7-7-12V5l7-3z" fill="currentColor"/>
+      </symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M12 7v6l4 2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </symbol>
+      <symbol id="icon-rocket" viewBox="0 0 24 24">
+        <path d="M7 17c-1 2 2 5 2 5s3-3 4-4l5-5c1-1-1-5-1-5s-4 2-5 3c-1 1-4 4-5 6z" fill="currentColor"/>
+      </symbol>
+      <symbol id="icon-copy" viewBox="0 0 24 24">
+        <rect x="9" y="9" width="11" height="11" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M5 15V5a2 2 0 0 1 2-2h9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+    </svg>
+
+    <main class="wrap">
+      <header class="hero">
+        <div class="hero-left">
+          <svg class="hero-icon" aria-hidden="true"><use href="#icon-rocket"></use></svg>
+          <h1>Shorten links. Share faster.</h1>
+          <p class="lead">Create short, memorable links with optional expiry and click tracking — secure and simple.</p>
+        </div>
+        <div class="hero-right">
+          <div class="card">
+            <label for="url">Paste a long URL</label>
+            <div class="input-row">
+              <input id="url" type="text" placeholder="https://example.com/path?query=1" autocomplete="off" />
+              <button id="shorten" class="btn-primary">Shorten</button>
+            </div>
+
+            <label for="expiry" class="muted">Expiry days (optional)</label>
+            <input id="expiry" type="number" placeholder="7" min="1" class="small" />
+
+            <div id="message" class="result" aria-live="polite" style="display:none"></div>
+          </div>
+        </div>
+      </header>
+
+      <section class="features">
+        <article>
+          <svg class="feature-icon"><use href="#icon-link"></use></svg>
+          <h3>Clean URLs</h3>
+          <p>Short codes are URL-safe and concise for sharing.</p>
+        </article>
+        <article>
+          <svg class="feature-icon"><use href="#icon-shield"></use></svg>
+          <h3>Secure by design</h3>
+          <p>Uses a secure random generator for unpredictable codes.</p>
+        </article>
+        <article>
+          <svg class="feature-icon"><use href="#icon-clock"></use></svg>
+          <h3>Expiry controls</h3>
+          <p>Optionally expire links automatically.</p>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const shortenBtn = document.getElementById('shorten');
+      const urlInput = document.getElementById('url');
+      const expiryInput = document.getElementById('expiry');
+      const msg = document.getElementById('message');
+
+      function showMessage(html, isError=false) {
+        msg.style.display = 'block';
+        msg.className = isError ? 'result error' : 'result success';
+        msg.innerHTML = html;
+      }
+
+      async function copyToClipboard(text) {
+        try { await navigator.clipboard.writeText(text); return true; }
+        catch (e) { return false; }
+      }
+
+      shortenBtn.addEventListener('click', async () => {
+        const url = urlInput.value.trim();
+        const expiry = expiryInput.value.trim();
+        if (!url) { showMessage('Please enter a URL.', true); return; }
+
+        showMessage('Creating short link...');
+
+        const payload = { url };
+        if (expiry) payload.expiry_days = parseInt(expiry, 10);
+
+        try {
+          const res = await fetch('/shorten', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (!res.ok) { showMessage(data.error || 'Error creating short link', true); return; }
+
+          const shortUrl = data.short_url;
+          const code = data.code;
+          const clicks = data.clicks;
+
+          const html = `<div class="short-result"><a href="${shortUrl}" target="_blank" rel="noopener noreferrer">${shortUrl}</a>` +
+                       `<div class="meta">Code: <strong>${code}</strong> &middot; Clicks: ${clicks}</div>` +
+                       `<button id="copy" class="btn-ghost" title="Copy short URL"><svg class="icon-sm"><use href="#icon-copy"></use></svg> Copy</button></div>`;
+
+          showMessage(html);
+          urlInput.value = ''; expiryInput.value = '';
+
+          const copyBtn = document.getElementById('copy');
+          if (copyBtn) copyBtn.addEventListener('click', async () => {
+            const ok = await copyToClipboard(shortUrl);
+            copyBtn.textContent = ok ? 'Copied' : 'Copy';
+            setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+          });
+
+        } catch (err) { showMessage('Network error: ' + err.message, true); }
+      });
+    </script>
+  </body>
+</html>

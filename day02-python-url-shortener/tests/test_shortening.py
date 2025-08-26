@@ -29,3 +29,11 @@ def test_shorten_and_info(client):
     assert info.status_code == 200
     info_json = info.get_json()
     assert info_json["original_url"] == "https://example.com"
+
+
+def test_index_page_renders(client):
+    r = client.get('/')
+    assert r.status_code == 200
+    html = r.get_data(as_text=True)
+    assert '<h1>URL Shortener</h1>' in html
+    assert 'id="shorten"' in html
