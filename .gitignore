@@ -1,0 +1,117 @@
+# General
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.old
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.*
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.sqlite
+*.sublime-workspace
+*.sublime-project
+
+# PHP
+*.log
+vendor/
+composer.lock
+.phpunit.result.cache
+
+# Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.coverage
+instance/
+*.egg-info/
+pip-wheel-metadata/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.next/
+.nuxt/
+out/
+
+# Go
+bin/
+*.exe
+*.test
+*.out
+go.sum
+go.mod
+
+# Ruby
+.bundle/
+log/
+tmp/
+*.gem
+Gemfile.lock
+coverage/
+db/*.sqlite3
+db/*.sqlite3-journal
+
+# C# / .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+TestResults/
+*.vspscc
+*.vssscc
+*.dbmdl
+*.pdb
+
+# Bash
+*.swp
+*.swo
+
+# Rust
+target/
+Cargo.lock
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+.classpath
+.project
+.settings/
+target/
+
+# SQL
+*.sql
+*.db
+*.sqlite
+
+# Ignore project-specific data
+day01-php-login/users.txt
+day02-python-url-shortener/instance/
+day02-python-url-shortener/__pycache__/
+day02-python-url-shortener/api/__pycache__/
+day02-python-url-shortener/services/__pycache__/
+day02-python-url-shortener/migrations/
+day02-python-url-shortener/scripts/__pycache__/
