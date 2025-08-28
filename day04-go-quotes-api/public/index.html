@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quotes API Frontend</title>
+  <style>
+    body {
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .header {
+      width: 100vw;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 1.5rem 0 1rem 0;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(102,126,234,0.07);
+      margin-bottom: 1.5rem;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 2.3rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+    .subtitle {
+      color: #e0eafc;
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+    }
+    .controls {
+      margin: 2.2rem 0 2.5rem 0;
+      display: flex;
+      gap: 1.2rem;
+      justify-content: center;
+    }
+    button {
+      padding: 0.85rem 2.2rem;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      font-size: 1.08rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(102,126,234,0.08);
+      transition: background 0.2s, transform 0.2s;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #5a67d8 0%, #6b21a8 100%);
+      transform: translateY(-2px) scale(1.03);
+    }
+    #output {
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      min-height: 120px;
+    }
+    .quote {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      padding: 2.2rem 2rem 1.5rem 2rem;
+      margin-bottom: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(102,126,234,0.07);
+      position: relative;
+      font-size: 1.25rem;
+      color: #2d3748;
+      transition: box-shadow 0.2s, transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      opacity: 0;
+      animation: fadeIn 0.7s forwards;
+    }
+    .quote:hover {
+      box-shadow: 0 8px 32px rgba(102,126,234,0.13);
+      transform: translateY(-2px) scale(1.01);
+    }
+    .quote::before {
+      content: '“';
+      font-size: 3.5rem;
+      color: #667eea;
+      position: absolute;
+      left: 18px;
+      top: 10px;
+      opacity: 0.18;
+      font-family: serif;
+    }
+    .author {
+      color: #764ba2;
+      font-style: italic;
+      margin-top: 1.2rem;
+      text-align: right;
+      font-size: 1.08rem;
+      align-self: flex-end;
+      font-weight: 500;
+    }
+    .fab {
+      position: fixed;
+      right: 2.2rem;
+      bottom: 2.2rem;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 2rem;
+      box-shadow: 0 4px 24px rgba(102,126,234,0.18);
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .fab:hover {
+      background: linear-gradient(90deg, #5a67d8 0%, #6b21a8 100%);
+      transform: scale(1.08);
+    }
+    .footer {
+      margin-top: auto;
+      padding: 1.2rem 0 0.7rem 0;
+      color: #888;
+      font-size: 1rem;
+      text-align: center;
+      width: 100vw;
+      background: none;
+    }
+    @media (max-width: 700px) {
+      .quote { font-size: 1.05rem; padding: 1.2rem; }
+      .header h1 { font-size: 2rem; }
+      .controls { flex-direction: column; gap: 0.7rem; }
+      .fab { right: 1rem; bottom: 1rem; width: 48px; height: 48px; font-size: 1.3rem; }
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Quotes API</h1>
+    <div class="subtitle">Get inspired by a random quote or browse them all!</div>
+  </div>
+  <div class="controls">
+    <button onclick="getRandomQuote()">🎲 Random Quote</button>
+    <button onclick="getAllQuotes()">📚 Show All Quotes</button>
+  </div>
+  <div id="output"></div>
+  <button class="fab" onclick="getRandomQuote()" title="Random Quote">🎲</button>
+  <div class="footer">&copy; 2025 Quotes API &mdash; #30DaysOfBackend</div>
+
+  <script>
+    const API = '';
+    const output = document.getElementById('output');
+
+    async function getRandomQuote() {
+      output.innerHTML = '<div style="text-align:center;">Loading...</div>';
+      const res = await fetch(API + '/api/quote');
+      const data = await res.json();
+      output.innerHTML = `<div class='quote'><p>${data.text}</p><div class='author'>- ${data.author}</div></div>`;
+    }
+
+    async function getAllQuotes() {
+      output.innerHTML = '<div style="text-align:center;">Loading...</div>';
+      const res = await fetch(API + '/api/quotes');
+      const data = await res.json();
+      output.innerHTML = data.map(q => `<div class='quote'><p>${q.text}</p><div class='author'>- ${q.author}</div></div>`).join('');
+    }
+  </script>
+</body>
+</html>
