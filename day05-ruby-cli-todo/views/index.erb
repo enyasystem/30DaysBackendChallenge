@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>📝 My Todo List</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; background: #f0f2f5; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #333; }
+    form { margin-bottom: 20px; text-align: center; }
+    input { width: 60%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; }
+    button { padding: 8px 12px; margin-left: 6px; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+    button:hover { opacity: 0.8; }
+    button.add { background-color: #4CAF50; color: white; }
+    button.complete { background-color: #2196F3; color: white; }
+    button.delete { background-color: #f44336; color: white; }
+    ul { list-style: none; padding: 0; }
+    li { background: white; margin-bottom: 10px; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    li.done { text-decoration: line-through; color: gray; background: #e0e0e0; }
+    .task-text { flex: 1; padding-left: 8px; }
+    .buttons { display: flex; gap: 6px; }
+  </style>
+</head>
+<body>
+  <h1>📝 My Todo List</h1>
+
+  <form action="/add" method="post">
+    <input type="text" name="task" placeholder="Add a new task">
+    <button class="add">Add</button>
+  </form>
+
+  <ul>
+    <% @todos.each_with_index do |todo, i| %>
+      <li class="<%= 'done' if todo['done'] %>">
+        <span><%= todo['done'] ? '✅' : '⬜' %></span>
+        <span class="task-text"><%= todo['task'] %></span>
+        <div class="buttons">
+          <% unless todo['done'] %>
+            <form action="/complete/<%= i %>" method="post" style="display:inline">
+              <button class="complete">Mark Done</button>
+            </form>
+          <% end %>
+          <form action="/delete/<%= i %>" method="post" style="display:inline">
+            <button class="delete">Delete</button>
+          </form>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+</body>
+</html>
