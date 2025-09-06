@@ -1,0 +1,6 @@
+@day06_file_uploader_HostAddress = http://localhost:5266
+
+GET {{day06_file_uploader_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

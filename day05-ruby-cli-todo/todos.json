@@ -2,5 +2,13 @@
   {
     "task": "Buy milk",
     "done": true
+  },
+  {
+    "task": "Make a post",
+    "done": false
+  },
+  {
+    "task": "Get Bread",
+    "done": false
   }
 ]

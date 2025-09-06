@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Uploader</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: linear-gradient(120deg, #10466c 0%, #1a70ad 100%);
+        }
+        .upload-container {
+            background: #b8dbf4;
+            border: 2px solid #75baea;
+        }
+        .upload-container h2 {
+            color: #10466c;
+        }
+        .upload-description {
+            color: #10466c;
+            background: #75baea;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+        button[type="submit"] {
+            background: linear-gradient(90deg, #3398e1 0%, #1a70ad 100%);
+        }
+        button[type="submit"]:hover {
+            background: linear-gradient(90deg, #1a70ad 0%, #3398e1 100%);
+        }
+        .upload-status {
+            color: #10466c;
+        }
+        input[type="file"] {
+            border: 1px solid #3398e1;
+            background: #eaf6fd;
+            color: #10466c;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <h2>Upload a File</h2>
+        <div class="upload-description">
+            This page allows you to upload any file to the server.<br>
+            Files are sent securely and stored in the server's <b>uploads</b> folder.<br>
+            Supported by a modern ASP.NET backend.<br>
+            <span style="color:#10466c; font-weight:600;">Try uploading an image, document, or any file!</span>
+        </div>
+        <form class="upload-form" id="uploadForm">
+            <input type="file" name="file" id="fileInput" required />
+            <button type="submit">Upload</button>
+        </form>
+        <div class="upload-status" id="uploadStatus"></div>
+    </div>
+    <script>
+    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const fileInput = document.getElementById('fileInput');
+        const status = document.getElementById('uploadStatus');
+        if (!fileInput.files.length) {
+            status.textContent = 'Please select a file.';
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        status.textContent = 'Uploading...';
+        try {
+            const response = await fetch('http://localhost:5266/upload/file', {
+                method: 'POST',
+                body: formData
+            });
+            let resultText = await response.text();
+            let result;
+            try {
+                result = JSON.parse(resultText);
+            } catch {
+                result = { status: resultText };
+            }
+            if (!response.ok) {
+                status.textContent = '❌ ' + (result.status || 'Upload failed.');
+                return;
+            }
+            status.textContent = `✅ ${result.file || ''} uploaded successfully!`;
+        } catch (err) {
+            status.textContent = '❌ Upload failed (network or CORS error).';
+        }
+    });
+    </script>
+</body>
+</html>
