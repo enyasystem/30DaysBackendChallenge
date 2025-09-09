@@ -1,0 +1,18 @@
+{
+  "name": "day08-node-jwt-auth",
+  "version": "1.0.0",
+  "description": "Day 08 - JWT Authentication API (Express, bcrypt, jsonwebtoken)",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0"
+  }
+}

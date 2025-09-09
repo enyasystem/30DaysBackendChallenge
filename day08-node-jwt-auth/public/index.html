@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Day08 - Auth Tester</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+  <main class="card">
+    <h1>Auth Tester</h1>
+
+    <section class="form-row">
+      <input id="username" placeholder="username" />
+      <input id="password" placeholder="password" type="password" />
+    </section>
+
+    <section class="actions">
+      <button id="btn-register">Register</button>
+      <button id="btn-login">Login</button>
+      <button id="btn-protected">Call Protected</button>
+    </section>
+
+    <section class="token-row">
+      <label>Token</label>
+      <textarea id="token" rows="3" readonly></textarea>
+      <button id="btn-copy">Copy</button>
+    </section>
+
+    <section class="output">
+      <label>Output</label>
+      <pre id="output"></pre>
+    </section>
+
+    <footer class="muted">Served from the Node API. Make sure the server is running.</footer>
+  </main>
+
+  <script src="/assets/js/app.js"></script>
+</body>
+</html>
