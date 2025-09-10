@@ -1,59 +1,75 @@
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(120deg, #16a085 0%, #48c9b0 100%);
+    background: #ffffff; /* plain white background */
     min-height: 100vh;
     margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #111111;
 }
 
 .upload-container {
-    background: rgba(255,255,255,0.95);
-    border-radius: 18px;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-    padding: 2.5rem 2rem 2rem 2rem;
+    background: #ffffff; /* white card */
+    color: #111111;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(16,16,16,0.08);
+    padding: 2.25rem 1.75rem;
     width: 100%;
-    max-width: 400px;
+    max-width: 480px;
     text-align: center;
+    border: 1px solid rgba(0,0,0,0.06);
 }
 .upload-container h2 {
-    margin-bottom: 1.5rem;
-    color: #16a085;
-    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #111111;
+    font-size: 1.6rem;
     font-weight: 700;
+}
+.upload-description {
+    color: #444444;
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.98rem;
 }
 .upload-form {
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
+    gap: 1rem;
 }
 input[type="file"] {
-    border: 1px solid #16a085;
+    border: 1px solid #e6e6e6;
     border-radius: 8px;
     padding: 0.5rem;
-    background: #f8fafc;
-    color: #334155;
+    background: #ffffff;
+    color: #111111;
 }
 button[type="submit"] {
-    background: linear-gradient(90deg, #16a085 0%, #48c9b0 100%);
-    color: #fff;
+    background: #10466c; /* simple accent color */
+    color: #ffffff;
     border: none;
     border-radius: 8px;
     padding: 0.75rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 1.02rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
-    box-shadow: 0 2px 8px rgba(22, 160, 133, 0.08);
+    transition: background 0.18s, transform 0.12s;
+    box-shadow: 0 6px 18px rgba(16,16,16,0.06);
 }
 button[type="submit"]:hover {
-    background: linear-gradient(90deg, #138d75 0%, #58d68d 100%);
-    transform: translateY(-2px) scale(1.03);
+    background: #0c3550;
+    transform: translateY(-2px);
 }
 .upload-status {
-    margin-top: 1.2rem;
-    font-size: 1rem;
-    color: #138d75;
-    min-height: 1.5em;
+    margin-top: 0.9rem;
+    font-size: 0.98rem;
+    color: #111111;
+    min-height: 1.2em;
+}
+
+@media (max-width: 480px) {
+    .upload-container { padding: 1.5rem; }
+    .upload-container h2 { font-size: 1.3rem; }
 }
