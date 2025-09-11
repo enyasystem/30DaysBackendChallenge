@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Blog</title>
+  <meta name="description" content="Insights, tutorials, and short stories about backend development.">
+  <link rel="alternate" type="application/rss+xml" title="My Blog - RSS" href="/blog/feeds/latest/">
+  <!-- Open Graph -->
+  <meta property="og:title" content="My Blog">
+  <meta property="og:description" content="Insights, tutorials, and short stories about backend development.">
+  <meta property="og:type" content="website">
+  {% extends 'blog/base.html' %}
+
+  {% block title %}Home — My Blog{% endblock %}
+
+  {% block content %}
+    <header class="hero" role="img" aria-label="Hero background image">
+      <div class="container text-center">
+        <h1 class="display-5 fw-bold">Insights & Experiments on Backend Development</h1>
+        <p class="lead">Deep dives, practical tips, and short tutorials from real projects.</p>
+        <div class="mt-4">
+          <a href="/blog/" class="btn btn-dark btn-lg me-2"><i class="fa-solid fa-book-open me-2"></i>Browse Posts</a>
+          <a href="#" class="btn btn-outline-light btn-lg"><i class="fa-solid fa-feather-pointed me-2"></i>Write a Post</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="posts-grid">
+      <div class="row g-4">
+        {% for post in posts %}
+        <div class="col-md-6 col-lg-4">
+          <article class="post-card h-100">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s={{ forloop.counter }}" 
+                 srcset="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&s={{ forloop.counter }} 400w, https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s={{ forloop.counter }} 800w"
+                 sizes="(max-width: 600px) 100vw, 33vw"
+                 alt="Cover image for {{ post.title }}" loading="lazy" class="post-image">
+            <div class="post-body">
+              <h3 class="post-title">{{ post.title }}</h3>
+              <p class="post-excerpt">{{ post.content|truncatewords:30 }}</p>
+              <div class="post-meta mt-3">
+                <span class="reading-time">⏱ {{ post.reading_time }} min read</span>
+                <span>&middot;</span>
+                <span>Posted {{ post.created_at|date:"M d, Y" }}</span>
+                <a class="ms-auto btn btn-sm btn-ghost" href="{% url 'post-detail' post.pk %}">Read</a>
+              </div>
+            </div>
+          </article>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+          <p class="lead text-muted">No posts yet. Check back soon!</p>
+          <a href="#" class="btn btn-outline-dark">Create the first post</a>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if posts.paginator.num_pages > 1 %}
+      <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination">
+          {% if posts.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ posts.previous_page_number }}" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+          {% endif %}
+
+          {% for i in posts.paginator.page_range %}
+          <li class="page-item {% if posts.number == i %}active{% endif %}"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+          {% endfor %}
+
+          {% if posts.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ posts.next_page_number }}" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </main>
+  {% endblock %}
+    <nav aria-label="Page navigation" class="mt-5">

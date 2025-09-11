@@ -16,15 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include # include function to include other URLconfs
-from django.http import JsonResponse
-
-
-def home(request):
-    return JsonResponse({"message": "Welcome to the Blog API"})
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('blog/', include('blog.urls')),  # Include the blog app's URLs
-    path('', home, name='home'),  # Home page
+    # Mount the blog app at root and at /home/ so the template-based blog home is shown
+    path('', include('blog.urls')),
+    path('home/', include('blog.urls')),
+    path('blog/', include('blog.urls')),  # legacy mount kept for clarity
+    # path('post/<int:pk>/', views.post_detail, name='post-detail'),  # detail page
 ]
 
