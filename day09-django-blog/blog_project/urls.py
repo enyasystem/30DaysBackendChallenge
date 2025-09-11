@@ -16,10 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include # include function to include other URLconfs
+from django.http import JsonResponse
+
+
+def home(request):
+    return JsonResponse({"message": "Welcome to the Blog API"})
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('blog/', include('blog.urls')),  # Include the blog app's URLs
-    
+    path('', home, name='home'),  # Home page
 ]
 
