@@ -1,0 +1,5 @@
+{
+    "name": "enyasystem/day10-laravel-cart-api",
+    "description": "Lightweight, file-based cart API inspired by Laravel-style routes",
+    "require": {}
+}
