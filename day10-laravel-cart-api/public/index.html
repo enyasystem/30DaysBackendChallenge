@@ -107,7 +107,7 @@
           </ul>
           <footer>
             <div class="small">Total</div>
-            <div id="total" style="font-weight:800">$0.00</div>
+            <div id="total" style="font-weight:800">₦0.00</div>
           </footer>
         </div>
       </div>
@@ -134,16 +134,16 @@
       list.innerHTML = '';
       if (!cart || !cart.items || cart.items.length===0) {
         list.innerHTML = '<li class="muted">No items in cart.</li>';
-        document.getElementById('total').textContent = '$0.00';
+        document.getElementById('total').textContent = '₦0.00';
         return;
       }
       cart.items.forEach(it => {
         const li = document.createElement('li');
         li.className = 'cart-item';
-        li.innerHTML = `<div class="cart-meta"><div><div class="item-name">${escapeHtml(it.name||'')}</div><div class="sku">${escapeHtml(it.product_id)}</div></div><div class="small">${it.quantity} × $${Number(it.price).toFixed(2)}</div></div><div style="display:flex;gap:8px"><button class="btn ghost" data-remove="${escapeHtml(it.product_id)}">Remove</button></div>`;
+        li.innerHTML = `<div class="cart-meta"><div><div class="item-name">${escapeHtml(it.name||'')}</div><div class="sku">${escapeHtml(it.product_id)}</div></div><div class="small">${it.quantity} × ₦${Number(it.price).toFixed(2)}</div></div><div style="display:flex;gap:8px"><button class="btn ghost" data-remove="${escapeHtml(it.product_id)}">Remove</button></div>`;
         list.appendChild(li);
       });
-      document.getElementById('total').textContent = '$' + (Number(cart.total||0)).toFixed(2);
+      document.getElementById('total').textContent = '₦' + (Number(cart.total||0)).toFixed(2);
       // wire remove buttons
       list.querySelectorAll('button[data-remove]').forEach(b => b.addEventListener('click', async (e)=>{
         const pid = b.getAttribute('data-remove');
