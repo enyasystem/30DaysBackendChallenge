@@ -48,3 +48,11 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8000/cart/clear" -Headers 
 Notes
 - This is not a full Laravel app. If you want a true Laravel scaffold, I can provide Composer commands and a minimal Laravel setup, but that requires Composer and more setup time.
 - Storage is file-based for simplicity; for production, switch to a database.
+
+Browser UI
+
+There's a small browser UI at `public/index.html` that lets you add/view/clear the cart without using curl or Postman. After starting the PHP server (see Quick start), open:
+
+http://localhost:8000/public/index.html
+
+The UI uses `client_id` query parameter (you can also set `X-Client-Id` header). Default client id is `test-client` in the UI.

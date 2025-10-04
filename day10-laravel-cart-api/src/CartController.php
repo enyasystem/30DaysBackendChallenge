@@ -13,7 +13,7 @@ class CartController
 
     private function fileFor($clientId)
     {
-        $safe = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $clientId);
+        $safe = preg_replace('/[^a-zA-Z0-9_\\-]/', '_', $clientId);
         return $this->dir . DIRECTORY_SEPARATOR . $safe . '.json';
     }
 
