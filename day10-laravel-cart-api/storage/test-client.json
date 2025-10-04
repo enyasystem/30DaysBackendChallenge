@@ -1,11 +1,4 @@
 {
-    "items": [
-        {
-            "product_id": "sku-1",
-            "name": "T-Shirt6",
-            "price": 19.99,
-            "quantity": 7
-        }
-    ],
-    "total": 139.93
+    "items": [],
+    "total": 0
 }

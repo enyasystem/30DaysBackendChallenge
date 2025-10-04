@@ -13,48 +13,176 @@
   <h1>Cart API Test UI</h1>
   <p>Provide a client id (e.g. <code>test-client</code>), add items, and view cart.</p>
   <label>Client ID: <input id="clientId" value="test-client"></label>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cart API — Test UI</title>
+  <style>
+    :root{
+      --bg:#f6f9fc; --card:#ffffff; --muted:#6b7280; --accent:#2563eb; --danger:#ef4444; --glass: rgba(15,23,42,0.04);
+      --radius:12px; --shadow: 0 6px 18px rgba(15,23,42,0.08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#eef2ff 0%,var(--bg) 100%);}
+    .container{max-width:1000px;margin:40px auto;padding:24px;}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+    h1{margin:0 0 8px;font-size:20px}
+    .muted{color:var(--muted);font-size:13px}
 
-  <h2>Add item</h2>
-  <label>Product ID: <input id="productId" value="sku-1"></label><br>
-  <label>Name: <input id="name" value="T-Shirt"></label><br>
-  <label>Price: <input id="price" value="19.99"></label><br>
-  <label>Quantity: <input id="quantity" value="1"></label><br>
-  <button id="add">Add to cart</button>
+    /* Form */
+    label{display:block;font-weight:600;margin-top:10px;font-size:13px}
+    input[type=text],input[type=number]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eef8;background:var(--glass);margin-top:6px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:0;background:var(--accent);color:white;font-weight:600;cursor:pointer}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(37,99,235,0.12)}
+    .btn.danger{background:var(--danger)}
 
-  <h2>Actions</h2>
-  <button id="view">View Cart</button>
-  <button id="clear">Clear Cart</button>
+    /* Cart list */
+    .cart-list{list-style:none;padding:0;margin:0}
+    .cart-item{display:flex;justify-content:space-between;padding:12px;border-bottom:1px dashed #eef2ff}
+    .cart-meta{display:flex;gap:12px;align-items:center}
+    .sku{font-size:12px;color:var(--muted)}
+    .item-name{font-weight:700}
+    .small{font-size:13px;color:var(--muted)}
 
-  <h2>Cart</h2>
-  <pre id="output">(empty)</pre>
+    footer{margin-top:14px;display:flex;justify-content:space-between;align-items:center}
+    pre#output{white-space:pre-wrap;background:#0f172a0a;padding:12px;border-radius:8px;color:#0f172a}
+
+    /* Responsive */
+    @media (max-width:900px){.grid{grid-template-columns:1fr;}.container{margin:18px}} 
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <h1>Cart API — Test UI</h1>
+        <div class="muted">Quickly exercise the cart endpoints. No login required.</div>
+      </div>
+      <div class="muted">Server: <code>index.php</code></div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <div class="card">
+          <label>Client ID</label>
+          <input id="clientId" type="text" value="test-client" />
+
+          <h3 style="margin-top:14px">Add product</h3>
+          <label>Product ID</label>
+          <input id="productId" type="text" value="sku-1" />
+          <label>Name</label>
+          <input id="name" type="text" value="T-Shirt" />
+          <div style="display:flex;gap:10px">
+            <div style="flex:1">
+              <label>Price</label>
+              <input id="price" type="number" step="0.01" value="19.99" />
+            </div>
+            <div style="width:120px">
+              <label>Quantity</label>
+              <input id="quantity" type="number" value="1" />
+            </div>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:10px">
+            <button id="add" class="btn">Add to cart</button>
+            <button id="view" class="btn ghost">Refresh cart</button>
+            <button id="clear" class="btn danger">Clear cart</button>
+          </div>
+          <div id="toast" style="margin-top:12px"></div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h3 style="margin:0 0 8px">Raw response</h3>
+          <pre id="output">(empty)</pre>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3 style="margin-top:0">Cart</h3>
+          <ul id="cartList" class="cart-list small">
+            <li class="muted">No items yet — add a product to get started.</li>
+          </ul>
+          <footer>
+            <div class="small">Total</div>
+            <div id="total" style="font-weight:800">$0.00</div>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    const api = (path, opts = {}) => {
-      const client = document.getElementById('clientId').value;
+    const apiCall = async (path, opts = {}) => {
+      const client = document.getElementById('clientId').value.trim();
       const url = '/cart' + path + (path.includes('?') ? '&' : '?') + 'client_id=' + encodeURIComponent(client);
-      return fetch(url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts)).then(r => r.json());
+      const res = await fetch(url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts));
+      const json = await res.json().catch(()=>({ error: 'Invalid JSON' }));
+      return { ok: res.ok, status: res.status, body: json };
+    };
+
+    const showToast = (msg, type = 'info') => {
+      const t = document.getElementById('toast');
+      t.innerHTML = `<div style="padding:10px;border-radius:8px;background:${type==='error'? '#fee2e2':'#ecfeff'};color:${type==='error'?'#991b1b':'#064e3b'}">${msg}</div>`;
+      setTimeout(()=> t.innerHTML = '', 3500);
+    };
+
+    const renderCart = (cart) => {
+      const list = document.getElementById('cartList');
+      list.innerHTML = '';
+      if (!cart || !cart.items || cart.items.length===0) {
+        list.innerHTML = '<li class="muted">No items in cart.</li>';
+        document.getElementById('total').textContent = '$0.00';
+        return;
+      }
+      cart.items.forEach(it => {
+        const li = document.createElement('li');
+        li.className = 'cart-item';
+        li.innerHTML = `<div class="cart-meta"><div><div class="item-name">${escapeHtml(it.name||'')}</div><div class="sku">${escapeHtml(it.product_id)}</div></div><div class="small">${it.quantity} × $${Number(it.price).toFixed(2)}</div></div><div style="display:flex;gap:8px"><button class="btn ghost" data-remove="${escapeHtml(it.product_id)}">Remove</button></div>`;
+        list.appendChild(li);
+      });
+      document.getElementById('total').textContent = '$' + (Number(cart.total||0)).toFixed(2);
+      // wire remove buttons
+      list.querySelectorAll('button[data-remove]').forEach(b => b.addEventListener('click', async (e)=>{
+        const pid = b.getAttribute('data-remove');
+        const r = await apiCall('/remove', { method: 'POST', body: JSON.stringify({ product_id: pid }) });
+        if (!r.ok) showToast('Remove failed: ' + (r.body && r.body.error ? r.body.error : r.status), 'error');
+        else { showToast('Removed'); refreshCart(); }
+      }));
+    };
+
+    const escapeHtml = (s) => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+
+    const refreshCart = async () => {
+      const r = await apiCall('');
+      document.getElementById('output').textContent = JSON.stringify(r, null, 2);
+      if (r.ok) renderCart(r.body);
+      else showToast('Error: ' + (r.body && r.body.error ? r.body.error : r.status), 'error');
     };
 
     document.getElementById('add').addEventListener('click', async () => {
-      const body = {
-        product_id: document.getElementById('productId').value,
-        name: document.getElementById('name').value,
-        price: parseFloat(document.getElementById('price').value) || 0,
-        quantity: parseInt(document.getElementById('quantity').value) || 1,
-      };
-      const res = await api('/add', { method: 'POST', body: JSON.stringify(body) });
-      document.getElementById('output').textContent = JSON.stringify(res, null, 2);
+      const pid = document.getElementById('productId').value.trim();
+      const name = document.getElementById('name').value.trim();
+      const price = parseFloat(document.getElementById('price').value) || 0;
+      const qty = parseInt(document.getElementById('quantity').value) || 1;
+      if (!pid || !name) return showToast('Product ID and Name are required', 'error');
+      const r = await apiCall('/add', { method: 'POST', body: JSON.stringify({ product_id: pid, name, price, quantity: qty }) });
+      document.getElementById('output').textContent = JSON.stringify(r, null, 2);
+      if (!r.ok) showToast('Add failed: ' + (r.body && r.body.error ? r.body.error : r.status), 'error');
+      else { showToast('Added'); refreshCart(); }
     });
 
-    document.getElementById('view').addEventListener('click', async () => {
-      const res = await api('');
-      document.getElementById('output').textContent = JSON.stringify(res, null, 2);
+    document.getElementById('view').addEventListener('click', refreshCart);
+    document.getElementById('clear').addEventListener('click', async ()=>{
+      const r = await apiCall('/clear', { method: 'POST' });
+      document.getElementById('output').textContent = JSON.stringify(r, null, 2);
+      if (!r.ok) showToast('Clear failed', 'error'); else { showToast('Cleared'); refreshCart(); }
     });
 
-    document.getElementById('clear').addEventListener('click', async () => {
-      const res = await api('/clear', { method: 'POST' });
-      document.getElementById('output').textContent = JSON.stringify(res, null, 2);
-    });
+    // initial load
+    refreshCart();
   </script>
 </body>
 </html>
