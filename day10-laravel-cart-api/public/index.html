@@ -115,12 +115,34 @@
   </div>
 
   <script>
+    // Global loading state
+    let loadingCount = 0;
+    const setLoading = (isLoading) => {
+      loadingCount += isLoading ? 1 : -1;
+      const disabled = loadingCount > 0;
+      document.querySelectorAll('button').forEach(b => b.disabled = disabled);
+      // show simple spinner text
+      document.querySelectorAll('.btn').forEach(b => {
+        if (b.disabled) b.style.opacity = '0.6'; else b.style.opacity = '1';
+      });
+    };
+
     const apiCall = async (path, opts = {}) => {
       const client = document.getElementById('clientId').value.trim();
       const url = '/cart' + path + (path.includes('?') ? '&' : '?') + 'client_id=' + encodeURIComponent(client);
-      const res = await fetch(url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts));
-      const json = await res.json().catch(()=>({ error: 'Invalid JSON' }));
-      return { ok: res.ok, status: res.status, body: json };
+      setLoading(true);
+      try {
+        const res = await fetch(url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts));
+        const json = await res.json().catch(()=>({ error: 'Invalid JSON' }));
+        return { ok: res.ok, status: res.status, body: json };
+      } catch (e) {
+        return { ok: false, status: 0, body: { error: e.message } };
+      } finally { setLoading(false); }
+    };
+
+    const formatCurrency = (n) => {
+      const num = Number(n) || 0;
+      return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 2 }).format(num);
     };
 
     const showToast = (msg, type = 'info') => {
@@ -140,10 +162,10 @@
       cart.items.forEach(it => {
         const li = document.createElement('li');
         li.className = 'cart-item';
-        li.innerHTML = `<div class="cart-meta"><div><div class="item-name">${escapeHtml(it.name||'')}</div><div class="sku">${escapeHtml(it.product_id)}</div></div><div class="small">${it.quantity} × ₦${Number(it.price).toFixed(2)}</div></div><div style="display:flex;gap:8px"><button class="btn ghost" data-remove="${escapeHtml(it.product_id)}">Remove</button></div>`;
+        li.innerHTML = `<div class="cart-meta"><div><div class="item-name">${escapeHtml(it.name||'')}</div><div class="sku">${escapeHtml(it.product_id)}</div></div><div class="small">${it.quantity} × ${formatCurrency(it.price)}</div></div><div style="display:flex;gap:8px"><button class="btn ghost" data-remove="${escapeHtml(it.product_id)}">Remove</button></div>`;
         list.appendChild(li);
       });
-      document.getElementById('total').textContent = '₦' + (Number(cart.total||0)).toFixed(2);
+      document.getElementById('total').textContent = formatCurrency(cart.total||0);
       // wire remove buttons
       list.querySelectorAll('button[data-remove]').forEach(b => b.addEventListener('click', async (e)=>{
         const pid = b.getAttribute('data-remove');

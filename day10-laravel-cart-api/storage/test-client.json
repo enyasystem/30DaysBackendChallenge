@@ -1,4 +1,17 @@
 {
-    "items": [],
-    "total": 0
+    "items": [
+        {
+            "product_id": "sku-1",
+            "name": "T-Shirt",
+            "price": 19.99,
+            "quantity": 1
+        },
+        {
+            "product_id": "klnaod",
+            "name": "Laptop",
+            "price": 5000,
+            "quantity": 1
+        }
+    ],
+    "total": 5019.99
 }
