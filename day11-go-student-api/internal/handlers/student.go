@@ -59,3 +59,15 @@ func (h *StudentHandler) GetStudent(w http.ResponseWriter, r *http.Request) {
     }
     json.NewEncoder(w).Encode(s)
 }
+
+func (h *StudentHandler) ListStudents(w http.ResponseWriter, r *http.Request) {
+    ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+    defer cancel()
+
+    students, err := h.Repo.ListStudents(ctx)
+    if err != nil {
+        http.Error(w, "db error: "+err.Error(), http.StatusInternalServerError)
+        return
+    }
+    json.NewEncoder(w).Encode(map[string]interface{}{"data": students, "count": len(students)})
+}

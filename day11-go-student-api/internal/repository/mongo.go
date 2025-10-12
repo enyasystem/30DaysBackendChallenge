@@ -51,3 +51,45 @@ func (r *MongoRepo) GetStudent(ctx context.Context, id string) (*models.Student,
 	s.ID = oid.Hex()
 	return &s, nil
 }
+
+func (r *MongoRepo) ListStudents(ctx context.Context) ([]*models.Student, error) {
+	coll := r.db.Collection("students")
+	cur, err := coll.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var results []*models.Student
+	for cur.Next(ctx) {
+		var s models.Student
+		if err := cur.Decode(&s); err != nil {
+			return nil, err
+		}
+		// ensure ID is set if document has ObjectID
+		if oid, ok := s.ID.(string); ok && oid == "" {
+			// no-op: keep existing ID handling below
+		}
+		results = append(results, &s)
+	}
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+	// set IDs for any docs where ID may be empty — attempt to read _id separately
+	// (documents decoded into struct with ID field empty if bson tag mismatched)
+	// simple approach: iterate and if ID empty, query raw doc to get _id
+	for i, s := range results {
+		if s.ID == "" {
+			// try to find document by unique fields
+			var raw bson.M
+			filter := bson.M{"email": s.Email}
+			if err := coll.FindOne(ctx, filter).Decode(&raw); err == nil {
+				if oid, ok := raw["_id"].(primitive.ObjectID); ok {
+					s.ID = oid.Hex()
+					results[i] = s
+				}
+			}
+		}
+	}
+	return results, nil
+}

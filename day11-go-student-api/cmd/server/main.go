@@ -42,6 +42,7 @@ func main() {
     r := chi.NewRouter()
     r.Post("/students", sh.CreateStudent)
     r.Get("/students/{id}", sh.GetStudent)
+    r.Get("/students", sh.ListStudents)
     // TODO: add list, update, delete
 
     srv := &http.Server{
