@@ -171,6 +171,18 @@ http://localhost:8080/api/v1
 }
 ```
 
+## 🙌 Demo
+
+A short demo of the API interaction using the Swagger UI (recorded from the running server).
+
+![Swagger UI demo GIF](./demo_swagger.gif)
+
+Quick frames from the demo:
+
+![frame 1](./frames/frame001.png) ![frame 2](./frames/frame002.png) ![frame 3](./frames/frame003.png)
+
+Open the interactive docs locally at: http://localhost:8080/docs
+
 ## 🏗️ Project Structure
 
 ```
@@ -229,7 +241,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👤 Author
 
-Your Name
+Enya Elvis
 - GitHub: [@enyasystem](https://github.com/enyasystem)
 - Email: enyaelvis@gmail.com
 
