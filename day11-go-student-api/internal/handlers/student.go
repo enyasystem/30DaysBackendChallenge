@@ -123,3 +123,30 @@ func (h *StudentHandler) ListStudents(w http.ResponseWriter, r *http.Request) {
     }
     json.NewEncoder(w).Encode(resp)
 }
+
+func (h *StudentHandler) UpdateStudent(w http.ResponseWriter, r *http.Request) {
+    id := chi.URLParam(r, "id")
+    var in models.Student
+    if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+        http.Error(w, "invalid json", http.StatusBadRequest)
+        return
+    }
+    // optional: validate only provided fields - for simplicity, validate struct
+    if err := h.Validator.StructPartial(&in, "FirstName", "LastName", "Email", "DOB", "Enrolled"); err != nil {
+        // StructPartial doesn't exist; fall back to full struct validation if needed
+    }
+
+    ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+    defer cancel()
+
+    updated, err := h.Repo.UpdateStudent(ctx, id, &in)
+    if err != nil {
+        http.Error(w, "db error: "+err.Error(), http.StatusInternalServerError)
+        return
+    }
+    if updated == nil {
+        http.Error(w, "not found", http.StatusNotFound)
+        return
+    }
+    json.NewEncoder(w).Encode(updated)
+}

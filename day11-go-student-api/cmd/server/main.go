@@ -43,6 +43,7 @@ func main() {
     r.Post("/students", sh.CreateStudent)
     r.Get("/students/{id}", sh.GetStudent)
     r.Get("/students", sh.ListStudents)
+    r.Put("/students/{id}", sh.UpdateStudent)
     // TODO: add list, update, delete
 
     srv := &http.Server{

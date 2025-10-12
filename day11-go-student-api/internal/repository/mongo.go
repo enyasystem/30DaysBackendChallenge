@@ -103,3 +103,60 @@ func (r *MongoRepo) ListStudents(ctx context.Context, filter interface{}, limit,
 	}
 	return results, total, nil
 }
+
+func (r *MongoRepo) UpdateStudent(ctx context.Context, id string, in *models.Student) (*models.Student, error) {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	coll := r.db.Collection("students")
+
+	// build update document only for non-zero fields
+	update := bson.M{"$set": bson.M{}}
+	set := update["$set"].(bson.M)
+
+	if in.FirstName != "" {
+		set["first_name"] = in.FirstName
+	}
+	if in.LastName != "" {
+		set["last_name"] = in.LastName
+	}
+	if in.Email != "" {
+		set["email"] = in.Email
+	}
+	if in.DOB != "" {
+		set["dob"] = in.DOB
+	}
+	// boolean zero value is false; to allow toggling enrolled, always set
+	set["enrolled"] = in.Enrolled
+
+	set["updated_at"] = time.Now().UTC()
+
+	if len(set) == 0 {
+		// nothing to update
+		return r.GetStudent(ctx, id)
+	}
+
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	var raw bson.M
+	err = coll.FindOneAndUpdate(ctx, bson.M{"_id": oid}, update, opts).Decode(&raw)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	var s models.Student
+	if oid2, ok := raw["_id"].(primitive.ObjectID); ok {
+		s.ID = oid2.Hex()
+	}
+	delete(raw, "_id")
+	b, err := bson.Marshal(raw)
+	if err != nil {
+		return nil, err
+	}
+	if err := bson.Unmarshal(b, &s); err != nil {
+		return nil, err
+	}
+	return &s, nil
+}
