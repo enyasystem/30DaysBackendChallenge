@@ -17,22 +17,34 @@ import (
 )
 
 type StudentHandler struct {
-    Repo      *repository.MongoRepo
+    Repo      repository.StudentRepo
     Validator *validator.Validate
 }
 
-func NewStudentHandler(repo *repository.MongoRepo) *StudentHandler {
+func NewStudentHandler(repo repository.StudentRepo) *StudentHandler {
     return &StudentHandler{Repo: repo, Validator: validator.New()}
+}
+
+func writeJSON(w http.ResponseWriter, status int, v interface{}) {
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(status)
+    _ = json.NewEncoder(w).Encode(v)
+}
+
+func writeError(w http.ResponseWriter, status int, message string) {
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(status)
+    _ = json.NewEncoder(w).Encode(map[string]interface{}{"error": map[string]interface{}{"message": message, "code": status}})
 }
 
 func (h *StudentHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
     var in models.Student
     if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-        http.Error(w, "invalid json", http.StatusBadRequest)
+        writeError(w, http.StatusBadRequest, "invalid json")
         return
     }
     if err := h.Validator.Struct(&in); err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+        writeError(w, http.StatusBadRequest, err.Error())
         return
     }
     ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
@@ -40,11 +52,10 @@ func (h *StudentHandler) CreateStudent(w http.ResponseWriter, r *http.Request) {
 
     created, err := h.Repo.CreateStudent(ctx, &in)
     if err != nil {
-        http.Error(w, "db error: "+err.Error(), http.StatusInternalServerError)
+        writeError(w, http.StatusInternalServerError, "db error: "+err.Error())
         return
     }
-    w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(created)
+    writeJSON(w, http.StatusCreated, created)
 }
 
 func (h *StudentHandler) GetStudent(w http.ResponseWriter, r *http.Request) {
@@ -53,14 +64,14 @@ func (h *StudentHandler) GetStudent(w http.ResponseWriter, r *http.Request) {
     defer cancel()
     s, err := h.Repo.GetStudent(ctx, id)
     if err != nil {
-        http.Error(w, "db error", http.StatusInternalServerError)
+        writeError(w, http.StatusInternalServerError, "db error: "+err.Error())
         return
     }
     if s == nil {
-        http.Error(w, "not found", http.StatusNotFound)
+        writeError(w, http.StatusNotFound, "not found")
         return
     }
-    json.NewEncoder(w).Encode(s)
+    writeJSON(w, http.StatusOK, s)
 }
 
 func (h *StudentHandler) ListStudents(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +121,7 @@ func (h *StudentHandler) ListStudents(w http.ResponseWriter, r *http.Request) {
     skip := (page - 1) * limit
     students, total, err := h.Repo.ListStudents(ctx, filter, int64(limit), int64(skip))
     if err != nil {
-        http.Error(w, "db error: "+err.Error(), http.StatusInternalServerError)
+        writeError(w, http.StatusInternalServerError, "db error: "+err.Error())
         return
     }
 
@@ -121,19 +132,15 @@ func (h *StudentHandler) ListStudents(w http.ResponseWriter, r *http.Request) {
         "page":  page,
         "limit": limit,
     }
-    json.NewEncoder(w).Encode(resp)
+    writeJSON(w, http.StatusOK, resp)
 }
 
 func (h *StudentHandler) UpdateStudent(w http.ResponseWriter, r *http.Request) {
     id := chi.URLParam(r, "id")
     var in models.Student
     if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-        http.Error(w, "invalid json", http.StatusBadRequest)
+        writeError(w, http.StatusBadRequest, "invalid json")
         return
-    }
-    // optional: validate only provided fields - for simplicity, validate struct
-    if err := h.Validator.StructPartial(&in, "FirstName", "LastName", "Email", "DOB", "Enrolled"); err != nil {
-        // StructPartial doesn't exist; fall back to full struct validation if needed
     }
 
     ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
@@ -141,12 +148,29 @@ func (h *StudentHandler) UpdateStudent(w http.ResponseWriter, r *http.Request) {
 
     updated, err := h.Repo.UpdateStudent(ctx, id, &in)
     if err != nil {
-        http.Error(w, "db error: "+err.Error(), http.StatusInternalServerError)
+        writeError(w, http.StatusInternalServerError, "db error: "+err.Error())
         return
     }
     if updated == nil {
-        http.Error(w, "not found", http.StatusNotFound)
+        writeError(w, http.StatusNotFound, "not found")
         return
     }
-    json.NewEncoder(w).Encode(updated)
+    writeJSON(w, http.StatusOK, updated)
+}
+
+func (h *StudentHandler) DeleteStudent(w http.ResponseWriter, r *http.Request) {
+    id := chi.URLParam(r, "id")
+    ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+    defer cancel()
+
+    ok, err := h.Repo.DeleteStudent(ctx, id)
+    if err != nil {
+        writeError(w, http.StatusInternalServerError, "db error: "+err.Error())
+        return
+    }
+    if !ok {
+        writeError(w, http.StatusNotFound, "not found")
+        return
+    }
+    writeJSON(w, http.StatusOK, map[string]string{"message": "student deleted"})
 }

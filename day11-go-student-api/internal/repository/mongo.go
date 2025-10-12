@@ -13,6 +13,15 @@ import (
 	"github.com/enyasystem/30DaysBackendChallenge/day11-go-student-api/internal/models"
 )
 
+// StudentRepo defines repository operations used by handlers (for easier testing).
+type StudentRepo interface {
+	CreateStudent(ctx context.Context, s *models.Student) (*models.Student, error)
+	GetStudent(ctx context.Context, id string) (*models.Student, error)
+	ListStudents(ctx context.Context, filter interface{}, limit, skip int64) ([]*models.Student, int64, error)
+	UpdateStudent(ctx context.Context, id string, in *models.Student) (*models.Student, error)
+	DeleteStudent(ctx context.Context, id string) (bool, error)
+}
+
 type MongoRepo struct {
 	db *mongo.Database
 }
@@ -159,4 +168,20 @@ func (r *MongoRepo) UpdateStudent(ctx context.Context, id string, in *models.Stu
 		return nil, err
 	}
 	return &s, nil
+}
+
+func (r *MongoRepo) DeleteStudent(ctx context.Context, id string) (bool, error) {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return false, err
+	}
+	coll := r.db.Collection("students")
+	res, err := coll.DeleteOne(ctx, bson.M{"_id": oid})
+	if err != nil {
+		return false, err
+	}
+	if res.DeletedCount == 0 {
+		return false, nil
+	}
+	return true, nil
 }

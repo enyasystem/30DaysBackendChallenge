@@ -44,6 +44,7 @@ func main() {
     r.Get("/students/{id}", sh.GetStudent)
     r.Get("/students", sh.ListStudents)
     r.Put("/students/{id}", sh.UpdateStudent)
+    r.Delete("/students/{id}", sh.DeleteStudent)
     // TODO: add list, update, delete
 
     srv := &http.Server{
