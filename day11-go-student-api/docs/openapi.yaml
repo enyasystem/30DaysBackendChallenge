@@ -1,0 +1,173 @@
+openapi: 3.0.0
+info:
+  title: Student Records API
+  version: 1.0.0
+  description: RESTful API for managing student records
+servers:
+  - url: http://localhost:8080
+paths:
+  /students:
+    post:
+      summary: Create a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentInput'
+            examples:
+              create:
+                value:
+                  first_name: Jane
+                  last_name: Doe
+                  email: jane.doe@example.com
+                  enrolled: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '400':
+          description: Bad request
+    get:
+      summary: List students with pagination and filtering
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Search text (first_name, last_name, email)
+        - name: enrolled
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Student'
+                  count:
+                    type: integer
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+  /students/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get a student by ID
+      responses:
+        '200':
+          description: Student object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '404':
+          description: Not found
+    put:
+      summary: Update a student (partial)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentInput'
+            examples:
+              update:
+                value:
+                  first_name: Updated
+                  enrolled: false
+      responses:
+        '200':
+          description: Updated student
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+    delete:
+      summary: Delete a student
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Not found
+components:
+  schemas:
+    Student:
+      type: object
+      properties:
+        id:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        dob:
+          type: string
+        enrolled:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    StudentInput:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        dob:
+          type: string
+        enrolled:
+          type: boolean
+      required:
+        - first_name
+        - last_name
+        - email

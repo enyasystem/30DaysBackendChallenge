@@ -45,7 +45,14 @@ func main() {
     r.Get("/students", sh.ListStudents)
     r.Put("/students/{id}", sh.UpdateStudent)
     r.Delete("/students/{id}", sh.DeleteStudent)
-    // TODO: add list, update, delete
+
+    // serve docs
+    r.Get("/openapi.yaml", func(w http.ResponseWriter, r *http.Request) {
+        http.ServeFile(w, r, "./docs/openapi.yaml")
+    })
+    r.Get("/docs", func(w http.ResponseWriter, r *http.Request) {
+        http.ServeFile(w, r, "./public/swagger.html")
+    })
 
     srv := &http.Server{
         Addr:    ":" + port,
