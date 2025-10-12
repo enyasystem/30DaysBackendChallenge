@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/enyasystem/30DaysBackendChallenge/day11-go-student-api/internal/models"
 )
@@ -52,11 +53,28 @@ func (r *MongoRepo) GetStudent(ctx context.Context, id string) (*models.Student,
 	return &s, nil
 }
 
-func (r *MongoRepo) ListStudents(ctx context.Context) ([]*models.Student, error) {
+func (r *MongoRepo) ListStudents(ctx context.Context, filter interface{}, limit, skip int64) ([]*models.Student, int64, error) {
 	coll := r.db.Collection("students")
-	cur, err := coll.Find(ctx, bson.M{})
+
+	// total count for the filter
+	total, err := coll.CountDocuments(ctx, filter)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
+	}
+
+	findOpts := options.Find()
+	if limit > 0 {
+		findOpts.SetLimit(limit)
+	}
+	if skip > 0 {
+		findOpts.SetSkip(skip)
+	}
+	// sort newest first
+	findOpts.SetSort(bson.D{{Key: "created_at", Value: -1}})
+
+	cur, err := coll.Find(ctx, filter, findOpts)
+	if err != nil {
+		return nil, 0, err
 	}
 	defer cur.Close(ctx)
 
@@ -64,26 +82,24 @@ func (r *MongoRepo) ListStudents(ctx context.Context) ([]*models.Student, error)
 	for cur.Next(ctx) {
 		var raw bson.M
 		if err := cur.Decode(&raw); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		var s models.Student
-		// extract and set ID
 		if oid, ok := raw["_id"].(primitive.ObjectID); ok {
 			s.ID = oid.Hex()
 		}
-		// remove _id so unmarshalling maps remaining fields into struct
 		delete(raw, "_id")
 		b, err := bson.Marshal(raw)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		if err := bson.Unmarshal(b, &s); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		results = append(results, &s)
 	}
 	if err := cur.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return results, nil
+	return results, total, nil
 }

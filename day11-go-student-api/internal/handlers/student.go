@@ -4,10 +4,13 @@ import (
     "context"
     "encoding/json"
     "net/http"
+    "strconv"
     "time"
 
     "github.com/go-chi/chi/v5"
     "github.com/go-playground/validator/v10"
+    "go.mongodb.org/mongo-driver/bson"
+    "go.mongodb.org/mongo-driver/bson/primitive"
 
     "github.com/enyasystem/30DaysBackendChallenge/day11-go-student-api/internal/models"
     "github.com/enyasystem/30DaysBackendChallenge/day11-go-student-api/internal/repository"
@@ -61,13 +64,62 @@ func (h *StudentHandler) GetStudent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *StudentHandler) ListStudents(w http.ResponseWriter, r *http.Request) {
+    // parse query params
+    q := r.URL.Query().Get("q")
+    pageStr := r.URL.Query().Get("page")
+    limitStr := r.URL.Query().Get("limit")
+    enrolledStr := r.URL.Query().Get("enrolled")
+
+    // defaults
+    page := 1
+    limit := 20
+
+    if pageStr != "" {
+        if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
+            page = p
+        }
+    }
+    if limitStr != "" {
+        if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 100 {
+            limit = l
+        }
+    }
+
+    // build filter
+    filter := bson.M{}
+    if q != "" {
+        // search first_name, last_name, email (case-insensitive)
+        regex := primitive.Regex{Pattern: q, Options: "i"}
+        filter["$or"] = []bson.M{
+            {"first_name": regex},
+            {"last_name": regex},
+            {"email": regex},
+        }
+    }
+    if enrolledStr != "" {
+        if enrolledStr == "true" {
+            filter["enrolled"] = true
+        } else if enrolledStr == "false" {
+            filter["enrolled"] = false
+        }
+    }
+
     ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
     defer cancel()
 
-    students, err := h.Repo.ListStudents(ctx)
+    skip := (page - 1) * limit
+    students, total, err := h.Repo.ListStudents(ctx, filter, int64(limit), int64(skip))
     if err != nil {
         http.Error(w, "db error: "+err.Error(), http.StatusInternalServerError)
         return
     }
-    json.NewEncoder(w).Encode(map[string]interface{}{"data": students, "count": len(students)})
+
+    resp := map[string]interface{}{
+        "data":  students,
+        "count": len(students),
+        "total": total,
+        "page":  page,
+        "limit": limit,
+    }
+    json.NewEncoder(w).Encode(resp)
 }
