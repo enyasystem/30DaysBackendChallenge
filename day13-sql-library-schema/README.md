@@ -1,200 +1,165 @@
+# Day 13 — Library Management System (SQLite)
 
-# 📚  Library Management System (SQLite)
-
-A lightweight **Library Management System** built with **SQLite** as the database.  
-This project demonstrates how to design, model, and manage a relational database for a small-scale library.  
-It includes tables for books, authors, publishers, members, and loans — complete with relationships and constraints.
+Lightweight library schema and examples using SQLite. This project demonstrates database design for a small library: books, authors, publishers, categories, physical copies, members and loans, plus many‑to‑many join tables.
 
 ---
 
-## 🧩 Features
+## Quick start
 
-- 🗂️ Well-structured database schema for library operations  
-- 📘 Manage books, authors, publishers, and categories  
-- 👥 Track members and their loan records  
-- ⏱️ Monitor book availability and due dates  
-- 🔐 Enforced data integrity with foreign keys and constraints  
-- 💾 Uses **SQLite** — a simple, file-based relational database  
-
----
-
-## 🗃️ Database Schema Overview
-
-**Entities included:**
-
-- `authors`  
-- `publishers`  
-- `categories`  
-- `books`  
-- `copies`  
-- `members`  
-- `loans`  
-
-**Relationships:**
-
-- One **publisher** → many **books**  
-- One **book** → many **copies**  
-- One **member** → many **loans**  
-- One **copy** → one **loan** at a time  
-
----
-
-## 🧭 Entity Relationship Diagram (ERD)
-
-Below is the ERD for this project — designed using **Mermaid Live Editor**.
-
-```mermaid
-erDiagram
-    PUBLISHERS ||--o{ BOOKS : publishes
-    AUTHORS ||--o{ BOOKS : writes
-    CATEGORIES ||--o{ BOOKS : classified_as
-    BOOKS ||--o{ COPIES : has
-    MEMBERS ||--o{ LOANS : makes
-    COPIES ||--o{ LOANS : involved_in
-
-    PUBLISHERS {
-        INTEGER id PK
-        TEXT name
-    }
-
-    AUTHORS {
-        INTEGER id PK
-        TEXT name
-    }
-
-    CATEGORIES {
-        INTEGER id PK
-        TEXT name
-    }
-
-    BOOKS {
-        INTEGER id PK
-        TEXT title
-        INTEGER publisher_id FK
-        DATE published_date
-        INTEGER pages
-    }
-
-    MEMBERS {
-        INTEGER id PK
-        TEXT name
-        TEXT email
-        TEXT phone
-        DATETIME registered_at
-    }
-
-    COPIES {
-        INTEGER id PK
-        INTEGER book_id FK
-        TEXT barcode
-        TEXT status
-    }
-
-    LOANS {
-        INTEGER id PK
-        INTEGER copy_id FK
-        INTEGER member_id FK
-        DATETIME loaned_at
-        DATETIME due_at
-        DATETIME returned_at
-        DECIMAL fine
-    }
-````
-
----
-
-## 🧱 Project Structure
-
-```
-day13-sql-library-schema/
-├── schema.sql       # Main database schema (tables, relationships)
-├── seed.sql         # Optional sample data
-├── day13.db         # SQLite database file
-├── README.md        # Project documentation
-└── (optional) app/  # For backend integration later
-```
-
----
-
-## ⚙️ Setup Instructions
-
-### 1️⃣ Create the database
+1. Recreate the database and load schema
 
 ```bash
+rm -f day13.db
 sqlite3 day13.db < schema.sql
 ```
 
-### 2️⃣ (Optional) Populate with sample data
+2. Load sample data
 
 ```bash
 sqlite3 day13.db < seed.sql
 ```
 
-### 3️⃣ Verify tables
+3. Create join tables (if not already present in `schema.sql`)
+
+```bash
+sqlite3 day13.db <<'SQL'
+PRAGMA foreign_keys=ON;
+CREATE TABLE IF NOT EXISTS book_authors (
+  book_id INTEGER NOT NULL,
+  author_id INTEGER NOT NULL,
+  PRIMARY KEY (book_id, author_id),
+  FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
+  FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_book_authors_author ON book_authors(author_id);
+
+CREATE TABLE IF NOT EXISTS book_categories (
+  book_id INTEGER NOT NULL,
+  category_id INTEGER NOT NULL,
+  PRIMARY KEY (book_id, category_id),
+  FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
+  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_book_categories_category ON book_categories(category_id);
+SQL
+```
+
+4. Open interactive shell for exploration
 
 ```bash
 sqlite3 day13.db
-sqlite> .tables
-sqlite> SELECT * FROM books;
+-- inside sqlite3:
+.headers on
+.mode column
+.tables
 ```
 
 ---
 
-## 🧠 Example Queries
+## Useful queries
 
-Get all books:
+- List all books (with publisher, authors, categories):
 
 ```sql
-SELECT * FROM books;
+SELECT
+  b.id,
+  b.title,
+  p.name AS publisher,
+  group_concat(DISTINCT a.name, ', ') AS authors,
+  group_concat(DISTINCT c2.name, ', ') AS categories,
+  b.published_date,
+  b.pages
+FROM books b
+LEFT JOIN publishers p ON b.publisher_id = p.id
+LEFT JOIN book_authors ba ON ba.book_id = b.id
+LEFT JOIN authors a ON a.id = ba.author_id
+LEFT JOIN book_categories bc ON bc.book_id = b.id
+LEFT JOIN categories c2 ON c2.id = bc.category_id
+GROUP BY b.id, b.title, p.name
+ORDER BY b.title;
 ```
 
-Get available copies:
+- Books with available copies:
 
 ```sql
-SELECT b.title, c.id AS copy_id
+SELECT
+  b.id,
+  b.title,
+  SUM(CASE WHEN c.status='available' THEN 1 ELSE 0 END) AS available_copies,
+  COUNT(c.id) AS total_copies
+FROM books b
+LEFT JOIN copies c ON c.book_id = b.id
+GROUP BY b.id, b.title
+ORDER BY available_copies DESC, b.title;
+```
+
+- Show all available copies (title + barcode):
+
+```sql
+SELECT b.title, c.id AS copy_id, c.barcode
 FROM copies c
 JOIN books b ON c.book_id = b.id
-WHERE c.status = 'available';
-```
-
-Check member loans:
-
-```sql
-SELECT m.name, b.title, l.loaned_at, l.due_at
-FROM loans l
-JOIN members m ON l.member_id = m.id
-JOIN copies c ON l.copy_id = c.id
-JOIN books b ON c.book_id = b.id;
+WHERE c.status = 'available'
+ORDER BY b.title, c.barcode;
 ```
 
 ---
 
-## 🚀 Next Steps
+## Safe checkout / return patterns (transactional)
 
-* [ ] Build a REST API using Node.js + Express
-* [ ] Implement CRUD routes for all entities
-* [ ] Add input validation and error handling
-* [ ] Add a simple frontend dashboard
-* [ ] Deploy with a persistent SQLite database
+Use a temporary table inside a transaction to safely pick a copy, insert a loan, and update copy status.
+
+- Checkout (example: book_id and member_id variables):
+
+```bash
+sqlite3 day13.db <<'SQL'
+PRAGMA foreign_keys=ON;
+BEGIN;
+CREATE TEMP TABLE tmp_sel (id INTEGER);
+INSERT INTO tmp_sel (id) SELECT id FROM copies WHERE book_id=<BOOK_ID> AND status='available' LIMIT 1;
+INSERT INTO loans(copy_id, member_id, loaned_at, due_at)
+  SELECT id, <MEMBER_ID>, datetime('now'), datetime('now','+14 days') FROM tmp_sel;
+UPDATE copies SET status='loaned' WHERE id IN (SELECT id FROM tmp_sel);
+DROP TABLE tmp_sel;
+COMMIT;
+SQL
+```
+
+- Return (mark loan returned and set copy available):
+
+```bash
+sqlite3 day13.db <<'SQL'
+PRAGMA foreign_keys=ON;
+BEGIN;
+CREATE TEMP TABLE tmp_return AS
+  SELECT id AS loan_id, copy_id FROM loans
+  WHERE member_id=<MEMBER_ID> AND returned_at IS NULL
+  ORDER BY loaned_at LIMIT 1;
+UPDATE loans SET returned_at = datetime('now') WHERE id IN (SELECT loan_id FROM tmp_return);
+UPDATE copies SET status = 'available' WHERE id IN (SELECT copy_id FROM tmp_return);
+DROP TABLE tmp_return;
+COMMIT;
+SQL
+```
+
+Notes:
+- Use `INSERT OR IGNORE` for idempotent seeding to avoid UNIQUE conflicts.
+- Keep `schema.sql` authoritative so `schema.sql` fully reproduces the DB structure.
 
 ---
 
-## 🧑‍💻 Author
+## Next steps & exercises
 
-**Enya Elvis**
-Full-Stack Developer | Tech Enthusiast | Educator
-📍 Cross River, Nigeria
-💬 “If you want to go fast, go alone. If you want to go far, go together.”
-
----
-
-## 🪪 License
-
-This project is open-source and available under the **MIT License**.
+- Add `queries.sql` with example reports: overdue loans, popular books, member history.
+- Build a small REST API (Express / FastAPI) to expose search and checkout operations.
+- Port schema to PostgreSQL and test concurrent checkouts.
 
 ---
 
-## 💡 Acknowledgments
+## Author
 
-* [SQLite Documentation](https://www.sqlite.org/docs.html)
-* [Mermaid Live Editor](https://mermaid.live/)
+Enya Elvis — Full-Stack Developer
+
+---
+
+License: MIT
