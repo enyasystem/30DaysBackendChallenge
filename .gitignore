@@ -106,6 +106,8 @@ target/
 *.db
 *.sqlite
 
+starting-prompt-sheet.txt
+
 # Ignore project-specific data
 day01-php-login/users.txt
 day02-python-url-shortener/instance/
