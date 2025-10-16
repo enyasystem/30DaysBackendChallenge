@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Day14 Bank API</title>
+    <style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; max-width:900px;margin:48px auto;color:#222}
+      pre{background:#f6f8fa;padding:12px;border-radius:6px;overflow:auto}
+      code{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    </style>
+  </head>
+  <body>
+    <h1>Day14 — Java Banking API</h1>
+    <p>This small learning API provides a couple of endpoints to create accounts, view balances and transfer funds.</p>
+
+    <h2>Endpoints</h2>
+    <ul>
+      <li><strong>POST /accounts</strong> — create account (body: JSON { "owner": "name", "initialBalance": 100 })</li>
+      <li><strong>GET /accounts/{id}</strong> — fetch account by id</li>
+      <li><strong>POST /accounts/transfer</strong> — transfer funds (body: JSON { "fromId":1, "toId":2, "amount":10 })</li>
+    </ul>
+
+    <h2>Quick curl examples</h2>
+    <pre><code># create Alice
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"owner":"Alice","initialBalance":100}' \
+  http://localhost:8080/accounts
+
+# transfer 10 from 1 to 2
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"fromId":1,"toId":2,"amount":10}' \
+  http://localhost:8080/accounts/transfer
+
+# get account
+curl http://localhost:8080/accounts/1
+    </code></pre>
+
+    <h2>Notes</h2>
+    <ul>
+      <li>If you see the default Whitelabel Error Page when visiting <code>/</code>, refresh after restarting the app — Spring Boot serves static resources from the application classpath; if the app is already running you may need to restart it to pick up new files.</li>
+      <li>This page was added to the project to make it easier to test the API from a browser.</li>
+    </ul>
+    
+    <h2>Browser UI</h2>
+    <p>Click the button to load all accounts (calls <code>GET /accounts</code>).</p>
+    <button id="loadAccounts">Load accounts</button>
+    <div id="accountsList" style="margin-top:12px;font-family:monospace"></div>
+    <h2>Create account (from browser)</h2>
+    <form id="createForm">
+      <label>Owner: <input type="text" id="owner" required></label>
+      <label style="margin-left:12px">Initial Balance: <input type="number" id="initialBalance" step="0.01" min="0"></label>
+      <button type="submit">Create</button>
+    </form>
+    <div id="createResult" style="margin-top:8px;font-family:monospace;color:green"></div>
+
+    <h2 style="margin-top:18px">Transfer funds (from browser)</h2>
+    <form id="transferForm">
+      <label>From ID: <input type="number" id="fromId" required></label>
+      <label style="margin-left:8px">To ID: <input type="number" id="toId" required></label>
+      <label style="margin-left:8px">Amount: <input type="number" id="amount" step="0.01" min="0.01" required></label>
+      <button type="submit">Transfer</button>
+    </form>
+    <div id="transferResult" style="margin-top:8px;font-family:monospace;color:green"></div>
+
+    <script>
+      async function loadAccounts() {
+        const out = document.getElementById('accountsList');
+        out.textContent = 'Loading...';
+        try {
+          const res = await fetch('/accounts');
+          if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+          const data = await res.json();
+          if (!Array.isArray(data)) {
+            out.textContent = JSON.stringify(data, null, 2);
+            return;
+          }
+          if (data.length === 0) {
+            out.textContent = 'No accounts yet (POST /accounts to create).';
+            return;
+          }
+          // render table
+          const table = document.createElement('table');
+          table.style.borderCollapse = 'collapse';
+          table.innerHTML = '<tr><th style="border:1px solid #ddd;padding:6px">ID</th><th style="border:1px solid #ddd;padding:6px">Owner</th><th style="border:1px solid #ddd;padding:6px">Balance</th></tr>';
+          data.forEach(a => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td style="border:1px solid #ddd;padding:6px">${a.id}</td><td style="border:1px solid #ddd;padding:6px">${a.owner}</td><td style="border:1px solid #ddd;padding:6px">${a.balance}</td><td style="border:1px solid #ddd;padding:6px"><button data-id="${a.id}" class="deleteBtn">Delete</button></td>`;
+            table.appendChild(tr);
+          });
+          out.innerHTML = '';
+          out.appendChild(table);
+        } catch (err) {
+          out.textContent = 'Error: ' + err.message;
+        }
+      }
+      document.getElementById('loadAccounts').addEventListener('click', loadAccounts);
+
+      // handle delete clicks (event delegation)
+      document.getElementById('accountsList').addEventListener('click', async (e) => {
+        if (!e.target.classList.contains('deleteBtn')) return;
+        const id = e.target.getAttribute('data-id');
+        if (!confirm('Delete account ' + id + '? This requires balance to be zero.')) return;
+        try {
+          const res = await fetch('/accounts/' + id, { method: 'DELETE' });
+          if (res.status === 204) {
+            loadAccounts();
+          } else if (res.status === 422) {
+            alert('Cannot delete: account balance must be zero.');
+          } else if (res.status === 404) {
+            alert('Account not found.');
+            loadAccounts();
+          } else {
+            alert('Delete failed: ' + res.status);
+          }
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      });
+
+      // Create account from UI
+      document.getElementById('createForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const owner = document.getElementById('owner').value;
+        const initialBalance = document.getElementById('initialBalance').value;
+        const result = document.getElementById('createResult');
+        result.style.color = 'green';
+        result.textContent = 'Creating...';
+        try {
+          const body = { owner };
+          if (initialBalance !== '') body.initialBalance = Number(initialBalance);
+          const res = await fetch('/accounts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          if (!res.ok) {
+            const txt = await res.text();
+            result.style.color = 'red';
+            result.textContent = `Error: ${res.status} ${res.statusText} - ${txt}`;
+            return;
+          }
+          const data = await res.json();
+          result.style.color = 'green';
+          result.textContent = 'Created: ' + JSON.stringify(data);
+          // refresh list
+          loadAccounts();
+        } catch (err) {
+          result.style.color = 'red';
+          result.textContent = 'Error: ' + err.message;
+        }
+      });
+
+      // Transfer from UI
+      document.getElementById('transferForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fromId = Number(document.getElementById('fromId').value);
+        const toId = Number(document.getElementById('toId').value);
+        const amount = Number(document.getElementById('amount').value);
+        const result = document.getElementById('transferResult');
+        result.style.color = 'green';
+        result.textContent = 'Transferring...';
+        try {
+          const res = await fetch('/accounts/transfer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fromId, toId, amount }) });
+          if (!res.ok) {
+            const txt = await res.text();
+            result.style.color = 'red';
+            result.textContent = `Error: ${res.status} ${res.statusText} - ${txt}`;
+            return;
+          }
+          result.style.color = 'green';
+          result.textContent = 'Transfer successful';
+          // refresh list
+          loadAccounts();
+        } catch (err) {
+          result.style.color = 'red';
+          result.textContent = 'Error: ' + err.message;
+        }
+      });
+    </script>
+  </body>
+</html>
