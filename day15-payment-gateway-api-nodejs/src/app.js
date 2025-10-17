@@ -19,4 +19,8 @@ app.use('/', webhookRoutes);
 // basic health
 app.get('/health', (req,res)=> res.json({ ok:true }));
 
+// error handler (must be last)
+const errorHandler = require('./middlewares/errorHandler');
+app.use(errorHandler);
+
 module.exports = app;

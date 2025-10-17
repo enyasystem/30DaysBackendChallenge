@@ -13,15 +13,26 @@ async function chargeAndSendWebhook({paymentIntentId, webhookUrl, webhookSecret,
   };
   const payload = JSON.stringify(event);
   const signature = sign(payload, webhookSecret);
-  try {
-    await axios.post(webhookUrl, payload, {
-      headers: { 'Content-Type':'application/json', 'x-signature': signature }
-    });
-    // mark event as sent in provider store (optional)
-    store.markEventProcessed(event.id);
-    return { ok: true, event };
-  } catch (err) {
-    return { ok: false, error: err.message };
+
+  const maxRetries = Number(process.env.PROVIDER_RETRIES || 2);
+  let attempt = 0;
+  let lastErr = null;
+  while (attempt <= maxRetries) {
+    try {
+      await axios.post(webhookUrl, payload, {
+        headers: { 'Content-Type':'application/json', 'x-signature': signature }
+      });
+      store.markEventProcessed(event.id);
+      return { ok: true, event };
+    } catch (err) {
+      lastErr = err;
+      attempt++;
+      if (attempt > maxRetries) break;
+      // jittered backoff
+      const backoffMs = 100 * Math.pow(2, attempt) + Math.floor(Math.random()*50);
+      await new Promise(r => setTimeout(r, backoffMs));
+    }
   }
+  return { ok: false, error: lastErr ? lastErr.message : 'unknown' };
 }
 module.exports = { chargeAndSendWebhook };

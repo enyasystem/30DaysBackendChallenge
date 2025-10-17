@@ -4,11 +4,14 @@ const { sign } = require('../../src/lib/signature');
 const store = require('../../src/data/inMemoryStore');
 
 describe('webhook flow', () => {
-  beforeAll(()=> process.env.WEBHOOK_SECRET = 'whsec_dev_secret');
+  beforeAll(()=>{
+    process.env.WEBHOOK_SECRET = 'whsec_dev_secret';
+    process.env.API_KEY = 'dev-key-123';
+  });
 
   test('provider posts signed webhook -> merchant verifies and updates intent', async () => {
-    // create intent
-    const createRes = await request(app).post('/payment-intents').send({ amount: 500, currency: 'USD' });
+    // create intent (with API key)
+    const createRes = await request(app).post('/payment-intents').set('x-api-key','dev-key-123').send({ amount: 500, currency: 'USD' });
     expect(createRes.status).toBe(201);
     const id = createRes.body.id;
 
