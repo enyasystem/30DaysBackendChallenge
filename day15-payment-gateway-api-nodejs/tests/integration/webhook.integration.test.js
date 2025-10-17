@@ -5,13 +5,15 @@ const store = require('../../src/data/inMemoryStore');
 
 describe('webhook flow', () => {
   beforeAll(()=>{
-    process.env.WEBHOOK_SECRET = 'whsec_dev_secret';
-    process.env.API_KEY = 'dev-key-123';
+    // generate ephemeral secrets for tests to avoid hardcoding
+    const { randomBytes } = require('crypto');
+    process.env.WEBHOOK_SECRET = randomBytes(16).toString('hex');
+    process.env.API_KEY = 'test-' + randomBytes(8).toString('hex');
   });
 
   test('provider posts signed webhook -> merchant verifies and updates intent', async () => {
     // create intent (with API key)
-    const createRes = await request(app).post('/payment-intents').set('x-api-key','dev-key-123').send({ amount: 500, currency: 'USD' });
+  const createRes = await request(app).post('/payment-intents').set('x-api-key',process.env.API_KEY).send({ amount: 500, currency: 'USD' });
     expect(createRes.status).toBe(201);
     const id = createRes.body.id;
 

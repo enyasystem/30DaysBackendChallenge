@@ -4,10 +4,14 @@ const { sign } = require('../../src/lib/signature');
 const store = require('../../src/data/inMemoryStore');
 
 describe('duplicate webhook handling', ()=>{
-  beforeAll(()=> process.env.WEBHOOK_SECRET = 'whsec_dev_secret');
+  beforeAll(()=>{
+    const { randomBytes } = require('crypto');
+    process.env.WEBHOOK_SECRET = randomBytes(16).toString('hex');
+    process.env.API_KEY = 'test-' + randomBytes(8).toString('hex');
+  });
 
   test('processing same event twice only changes state once', async ()=>{
-    const createRes = await request(app).post('/payment-intents').set('x-api-key','dev-key-123').send({ amount: 500, currency: 'USD' });
+    const createRes = await request(app).post('/payment-intents').set('x-api-key', process.env.API_KEY).send({ amount: 500, currency: 'USD' });
     const id = createRes.body.id;
 
     const event = { id: 'evt_dup', type: 'payment_succeeded', data: { paymentIntentId: id } };
