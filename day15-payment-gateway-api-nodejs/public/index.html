@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Payment Gateway Simulation</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Payment Gateway Simulation</h1>
+
+    <section class="card">
+      <h2>Create Payment Intent</h2>
+      <label>Amount (cents)
+        <input id="amount" type="number" value="1000" />
+      </label>
+      <label>Currency
+        <input id="currency" type="text" value="USD" />
+      </label>
+      <button id="create">Create Intent</button>
+      <pre id="createResult" class="result"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Simulate Provider Charge</h2>
+      <label>PaymentIntent ID
+        <input id="piId" type="text" placeholder="paste payment intent id" />
+      </label>
+      <label>Webhook URL
+        <input id="webhookUrl" type="text" value="http://localhost:3000/webhooks/receive" />
+      </label>
+      <label>
+        <input id="succeed" type="checkbox" checked /> Succeed
+      </label>
+      <button id="charge">Charge & Send Webhook</button>
+      <pre id="chargeResult" class="result"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Check PaymentIntent</h2>
+      <label>PaymentIntent ID
+        <input id="checkId" type="text" placeholder="paste payment intent id" />
+      </label>
+      <button id="check">Check Status</button>
+      <pre id="checkResult" class="result"></pre>
+    </section>
+
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

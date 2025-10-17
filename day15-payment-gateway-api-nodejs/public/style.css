@@ -1,0 +1,12 @@
+:root{--bg:#f7fafc;--card:#fff;--accent:#2563eb}
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:#0f172a;margin:0;padding:24px}
+.container{max-width:900px;margin:0 auto}
+h1{margin:0 0 16px}
+.card{background:var(--card);padding:16px;border-radius:8px;box-shadow:0 2px 8px rgba(2,6,23,0.06);margin-bottom:16px}
+label{display:block;margin:8px 0}
+input[type=text],input[type=number]{width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px}
+button{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:6px;cursor:pointer}
+.result{background:#0f172a;color:#e6eef8;padding:12px;border-radius:6px;overflow:auto}
+
+@media(min-width:720px){.card{display:block}}

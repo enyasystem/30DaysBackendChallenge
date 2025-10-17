@@ -1,13 +1,17 @@
 const express = require('express');
+const path = require('path');
 const merchantRoutes = require('./routes/merchant');
 const providerRoutes = require('./routes/provider');
 const webhookRoutes = require('./routes/webhooks');
 const app = express();
 
-// JSON middleware for merchant endpoints
+// JSON middleware for endpoints
 app.use(express.json());
 
-// mount routers
+// Serve static frontend from /public
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// mount routers (API)
 app.use('/', merchantRoutes);
 app.use('/', providerRoutes);
 app.use('/', webhookRoutes);
