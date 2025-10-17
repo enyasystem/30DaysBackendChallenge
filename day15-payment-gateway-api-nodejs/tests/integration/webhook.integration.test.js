@@ -1,0 +1,26 @@
+const request = require('supertest');
+const app = require('../../src/app');
+const { sign } = require('../../src/lib/signature');
+const store = require('../../src/data/inMemoryStore');
+
+describe('webhook flow', () => {
+  beforeAll(()=> process.env.WEBHOOK_SECRET = 'whsec_dev_secret');
+
+  test('provider posts signed webhook -> merchant verifies and updates intent', async () => {
+    // create intent
+    const createRes = await request(app).post('/payment-intents').send({ amount: 500, currency: 'USD' });
+    expect(createRes.status).toBe(201);
+    const id = createRes.body.id;
+
+    // simulate provider sending signed webhook directly to merchant
+    const event = { id: 'evt_test', type: 'payment_succeeded', data: { paymentIntentId: id } };
+    const payload = JSON.stringify(event);
+    const signature = sign(payload, process.env.WEBHOOK_SECRET);
+
+    const whRes = await request(app).post('/webhooks/receive').set('x-signature', signature).send(event);
+    expect(whRes.status).toBe(200);
+
+    const intent = store.getIntent(id);
+    expect(intent.status).toBe('succeeded');
+  });
+});
