@@ -24,6 +24,7 @@ input,textarea{font-size:14px}
 
 .auth{display:flex;align-items:center;gap:12px}
 .user-panel{display:flex;align-items:center;gap:8px}
+.user-panel.hidden{display:none}
 .avatar{width:34px;height:34px;border-radius:50%;background:#eef2ff;color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:600}
 .btn-logout{background:transparent;border:1px solid #e6edf3;padding:6px 8px;border-radius:8px;cursor:pointer}
 .login-panel input{margin-right:8px}

@@ -215,14 +215,19 @@ function escapeHtml(s = '') {
 
 function formatTimestamp(ts) {
   if (!ts) return '';
-  // SQLite uses 'YYYY-MM-DD HH:MM:SS' (UTC when using datetime('now')).
-  // Convert to ISO and force Z (UTC) so Date parses correctly, then format to local.
+  // Expect formats like 'YYYY-MM-DD HH:MM:SS' (SQLite default from datetime('now')).
+  // Parse explicitly to avoid browser inconsistencies and treat values as UTC.
+  const m = ts.match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (!m) return ts;
+  const year = parseInt(m[1], 10);
+  const month = parseInt(m[2], 10) - 1;
+  const day = parseInt(m[3], 10);
+  const hour = parseInt(m[4], 10);
+  const minute = parseInt(m[5], 10);
+  const second = parseInt(m[6] || '0', 10);
   try {
-    let iso = ts.replace(' ', 'T');
-    if (!/[zZ\+\-]/.test(iso)) iso = iso + 'Z';
-    const d = new Date(iso);
-    if (isNaN(d)) return ts;
-    return d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    const d = new Date(Date.UTC(year, month, day, hour, minute, second));
+    return d.toLocaleString(undefined, { timeZone: 'Africa/Lagos', dateStyle: 'medium', timeStyle: 'short' });
   } catch (e) {
     return ts;
   }
@@ -273,6 +278,9 @@ function updateAuthUI() {
     loginPanel.classList.remove('hidden');
     userPanel.classList.add('hidden');
     avatar.textContent = '';
+    // also clear the displayed username so it doesn't persist in the DOM
+    const currentUserEl = document.getElementById('current-user');
+    if (currentUserEl) currentUserEl.textContent = '';
     if (logoutBtn) logoutBtn.style.display = 'none';
     if (avatar) avatar.style.display = 'none';
   }
@@ -282,6 +290,9 @@ function logout() {
   state.token = null;
   state.username = null;
   localStorage.removeItem('token');
+  // clear UI immediately and update panels
+  const currentUserEl = document.getElementById('current-user');
+  if (currentUserEl) currentUserEl.textContent = '';
   updateAuthUI();
   document.getElementById('create-post').classList.add('hidden');
   showToast('Logged out', 'info');
@@ -324,25 +335,35 @@ updateAuthUI();
 async function init() {
   // if a token exists, verify it and populate username; clear token if invalid
   if (state.token) {
+    const tokenAtRequest = state.token;
     try {
-      const res = await api('/me', { headers: { 'Authorization': 'Bearer ' + state.token } });
+      const res = await api('/me', { headers: { 'Authorization': 'Bearer ' + tokenAtRequest } });
       if (res.ok) {
         const j = await res.json();
-        state.username = j.data.username;
-        document.getElementById('current-user').textContent = state.username;
-        updateAuthUI();
-        document.getElementById('create-post').classList.remove('hidden');
+        // only apply the response if the token hasn't changed (user didn't log out)
+        if (state.token && state.token === tokenAtRequest) {
+          state.username = j.data.username;
+          const currentUserEl = document.getElementById('current-user');
+          if (currentUserEl) currentUserEl.textContent = state.username;
+          updateAuthUI();
+          const createPostEl = document.getElementById('create-post');
+          if (createPostEl) createPostEl.classList.remove('hidden');
+        }
       } else {
         // token invalid -> clear
+        if (state.token && state.token === tokenAtRequest) {
+          state.token = null;
+          localStorage.removeItem('token');
+          updateAuthUI();
+        }
+      }
+    } catch (e) {
+      // network or other error - clear token to avoid inconsistent UI
+      if (state.token && state.token === tokenAtRequest) {
         state.token = null;
         localStorage.removeItem('token');
         updateAuthUI();
       }
-    } catch (e) {
-      // network or other error - clear token to avoid inconsistent UI
-      state.token = null;
-      localStorage.removeItem('token');
-      updateAuthUI();
     }
   }
   await loadPosts();
