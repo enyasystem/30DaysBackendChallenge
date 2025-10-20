@@ -1,0 +1,11 @@
+{
+  "name": "enya/day17-forum",
+  "description": "Day 17 forum API - minimal",
+  "require": {},
+  "autoload": {
+    "psr-4": { "App\\": "src/" }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5"
+  }
+}

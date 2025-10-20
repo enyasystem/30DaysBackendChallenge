@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Day17 — Forum (Minimal)</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Mini Forum</h1>
+      <div class="auth">
+        <div id="user-panel" class="user-panel hidden">
+          <div id="user-avatar" class="avatar"></div>
+          <span id="current-user" class="muted"></span>
+          <button id="btn-logout" class="btn-logout">Logout</button>
+        </div>
+        <div id="login-panel" class="login-panel">
+          <input id="username" placeholder="username" />
+          <input id="password" placeholder="password" type="password" />
+          <button id="btn-register">Register</button>
+          <button id="btn-login">Login</button>
+        </div>
+      </div>
+    </header>
+
+    <section id="create-post" class="card hidden">
+      <h2>Create Post</h2>
+      <input id="post-title" placeholder="Title" />
+      <textarea id="post-body" placeholder="Body"></textarea>
+      <button id="btn-create">Create</button>
+    </section>
+
+    <section id="posts" class="card">
+      <h2>Posts</h2>
+      <ul id="posts-list"></ul>
+    </section>
+  </main>
+
+  <!-- Toast container -->
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Confirmation modal -->
+  <div id="confirm-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-backdrop"></div>
+    <div class="modal-panel">
+      <h3 id="confirm-title">Confirm</h3>
+      <div id="confirm-body" class="modal-body"></div>
+      <div class="modal-actions">
+        <button id="confirm-cancel">Cancel</button>
+        <button id="confirm-ok" style="background-color: red;">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
