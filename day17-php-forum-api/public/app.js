@@ -270,7 +270,12 @@ function updateAuthUI() {
   if (state.token && state.username) {
     loginPanel.classList.add('hidden');
     userPanel.classList.remove('hidden');
-    avatar.textContent = state.username.charAt(0).toUpperCase();
+    // set avatar letter and color
+    const letter = state.username.charAt(0).toUpperCase();
+    avatar.textContent = letter;
+    const { bg, fg } = avatarColorsFor(state.username);
+    avatar.style.background = bg;
+    avatar.style.color = fg;
     document.getElementById('current-user').textContent = state.username;
     if (logoutBtn) logoutBtn.style.display = '';
     if (avatar) avatar.style.display = '';
@@ -284,6 +289,41 @@ function updateAuthUI() {
     if (logoutBtn) logoutBtn.style.display = 'none';
     if (avatar) avatar.style.display = 'none';
   }
+}
+
+// deterministic avatar color generator: returns background and foreground for readability
+function avatarColorsFor(name) {
+  // simple hash
+  let h = 216;
+  for (let i = 0; i < name.length; i++) {
+    h = ((h << 5) - h) + name.charCodeAt(i);
+    h |= 0;
+  }
+  // produce a hue in [0,360)
+  const hue = Math.abs(h) % 360;
+  // pick a saturation and lightness that yield pleasant colors
+  const sat = 60; // percent
+  const light = 55; // percent
+  const bg = `hsl(${hue} ${sat}% ${light}%)`;
+  // compute perceived brightness to choose fg color
+  // convert hsl to rgb quickly (approx)
+  const c = (1 - Math.abs(2 * (light/100) - 1)) * (sat/100);
+  const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const m = (light/100) - c/2;
+  let r1 = 0, g1 = 0, b1 = 0;
+  if (hue < 60) { r1 = c; g1 = x; b1 = 0; }
+  else if (hue < 120) { r1 = x; g1 = c; b1 = 0; }
+  else if (hue < 180) { r1 = 0; g1 = c; b1 = x; }
+  else if (hue < 240) { r1 = 0; g1 = x; b1 = c; }
+  else if (hue < 300) { r1 = x; g1 = 0; b1 = c; }
+  else { r1 = c; g1 = 0; b1 = x; }
+  const r = Math.round((r1 + m) * 255);
+  const g = Math.round((g1 + m) * 255);
+  const b = Math.round((b1 + m) * 255);
+  // luminance formula (sRGB)
+  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  const fg = (lum > 0.6) ? '#111' : '#fff';
+  return { bg, fg };
 }
 
 function logout() {
