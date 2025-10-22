@@ -1,0 +1,23 @@
+body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:#f6f8fa; color:#111 }
+.container { max-width:700px; margin:40px auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 4px 14px rgba(0,0,0,0.08)}
+#chat { height:300px; overflow:auto; border:1px solid #eee; padding:8px; margin-bottom:8px }
+#messages { list-style:none; padding:0; margin:0 }
+#messages li { padding:6px 4px; border-bottom:1px solid #f0f0f0 }
+#form { display:flex }
+#input { flex:1; padding:8px }
+#form button { padding:8px 12px }
+.controls { display:flex; gap:8px; margin-bottom:8px }
+.controls input { padding:8px }
+
+.msg { display:flex; gap:8px; align-items:flex-start; margin:8px 0 }
+.msg .avatar { width:36px; height:36px; border-radius:50%; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:600 }
+.msg .body { max-width:70% }
+.msg .who { font-size:0.8rem; color:#666 }
+.msg .text { background:#f1f3f5; padding:8px 10px; border-radius:8px; margin-top:4px }
+.msg.me { justify-content:flex-end; text-align:right }
+.msg.me .body { text-align:right }
+.msg.me .text { background:#dff0ff }
+.msg.me .avatar { order:2 }
+.msg.other { justify-content:flex-start }
+.msg.other .text { background:#f1f3f5 }
+
