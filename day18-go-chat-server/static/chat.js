@@ -29,13 +29,11 @@
   function renderMessage(m) {
     const li = document.createElement('li')
     li.className = 'msg'
-    // determine side: if local user -> me; else use assigned sides
+    // Standard chat UX: messages sent by the local user appear on the right
     if (m.username && localUsername && m.username === localUsername) {
       li.classList.add('me')
     } else {
-      const side = (window.__userSides && window.__userSides[m.username]) || 'left'
-      if (side === 'right') li.classList.add('me')
-      else li.classList.add('other')
+      li.classList.add('other')
     }
 
     if (m.type === 'message') {
@@ -90,13 +88,8 @@
             append('* ' + m.username + ' left')
             break
           case 'users':
-              // assign sides alternately based on order
-              const users = m.users || []
-              window.__userSides = {}
-              for (let i = 0; i < users.length; i++) {
-                window.__userSides[users[i]] = (i % 2 === 0) ? 'left' : 'right'
-              }
-              append('* users: ' + users.join(', '))
+              // show users in join order; UI list can be improved later
+              append('* users: ' + (m.users || []).join(', '))
             break
           case 'error':
             append('Error: ' + m.error)
