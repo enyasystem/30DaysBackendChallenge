@@ -1,23 +1,33 @@
-<a href="/events">Back to events</a>
-<h2><%= event.title %></h2>
-<p>Capacity: <%= event.capacity %></p>
-<p>Booked: <%= booked %></p>
+<div style="display:flex;justify-content:space-between;align-items:center">
+  <h2 style="margin:0"><%= event.title %></h2>
+  <a class="button-link" href="/events">Back</a>
+</div>
+<div class="meta" style="margin-top:8px">Capacity: <strong><%= event.capacity %></strong> — Booked: <strong><%= booked %></strong></div>
+
+<hr style="margin:12px 0">
 
 <h3>Bookings</h3>
-<ul>
-  <% bookings.each do |b| %>
-    <li>
-      <%= b.name %>
-      <form action="/events/<%= event.id %>/bookings/<%= b.id %>" method="post" style="display:inline">
-        <input type="hidden" name="_method" value="delete">
-        <button type="submit">Cancel</button>
-      </form>
-    </li>
+<div>
+  <% if bookings.empty? %>
+    <div class="muted">No bookings yet. Be the first!</div>
   <% end %>
-</ul>
+  <ul>
+    <% bookings.each do |b| %>
+      <li style="margin:8px 0;display:flex;align-items:center;justify-content:space-between">
+        <span><%= b.name %></span>
+        <form action="/events/<%= event.id %>/bookings/<%= b.id %>" method="post" style="display:inline">
+          <input type="hidden" name="_method" value="delete">
+          <button type="submit" style="background:#ef4444">Cancel</button>
+        </form>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
+<hr style="margin:12px 0">
 
 <h3>Book a seat</h3>
-<form action="/events/<%= event.id %>/book" method="post">
-  <label>Name: <input name="name" required></label>
+<form action="/events/<%= event.id %>/book" method="post" style="display:flex;gap:8px;align-items:center">
+  <input name="name" placeholder="Your name" required style="flex:1;padding:8px;border-radius:6px;border:1px solid #e5e7eb">
   <button type="submit">Book</button>
 </form>

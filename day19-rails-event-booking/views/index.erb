@@ -1,17 +1,32 @@
-<a href="/">Home</a>
 <h2>Events</h2>
-<ul>
-  <% events.each do |e| %>
-    <li>
-      <strong><a href="/events/<%= e[:id] %>"><%= e[:title] %></a></strong>
-      — capacity: <%= e[:capacity] %>, booked: <%= e[:booked] %>
-    </li>
+<div class="events">
+  <% if events.empty? %>
+    <div class="muted">No events yet — create one below.</div>
   <% end %>
-</ul>
+  <% events.each do |e| %>
+    <div class="event">
+      <h3><a href="/events/<%= e[:id] %>"><%= e[:title] %></a></h3>
+      <div class="meta">Capacity: <strong><%= e[:capacity] %></strong> — Booked: <strong><%= e[:booked] %></strong></div>
+      <div class="actions">
+        <form action="/events/<%= e[:id] %>/book" method="post" style="margin:0;display:inline">
+          <input name="name" placeholder="Your name" required style="width:140px;display:inline-block;margin-right:6px">
+          <button type="submit">Book</button>
+        </form>
+        <a class="muted" href="/events/<%= e[:id] %>">View</a>
+      </div>
+    </div>
+  <% end %>
+</div>
 
 <h3>Create event</h3>
 <form action="/events" method="post">
-  <label>Title: <input name="title" required></label><br>
-  <label>Capacity: <input name="capacity" type="number" min="1" required></label><br>
-  <button type="submit">Create</button>
+  <label>Title:
+    <input type="text" name="title" required>
+  </label>
+  <label>Capacity:
+    <input type="number" name="capacity" min="1" required>
+  </label>
+  <div style="margin-top:10px">
+    <button type="submit">Create event</button>
+  </div>
 </form>

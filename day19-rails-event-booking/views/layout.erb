@@ -1,12 +1,39 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Event Booking</title>
-    <style>body{font-family:Arial,Helvetica,sans-serif;margin:20px}form{margin-top:10px}</style>
+    <style>
+      :root{--bg:#f6f8fa;--card:#ffffff;--accent:#2563eb;--muted:#6b7280}
+      html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Arial,Helvetica,sans-serif;background:var(--bg);color:#111827}
+      .container{max-width:900px;margin:28px auto;padding:20px}
+      header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+      header h1{margin:0;font-size:1.4rem}
+      .card{background:var(--card);border-radius:10px;box-shadow:0 6px 18px rgba(15,23,42,0.06);padding:18px}
+      .events{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:14px 0}
+      .event{padding:12px;border-radius:8px;border:1px solid rgba(15,23,42,0.04);background:linear-gradient(180deg,rgba(255,255,255,0.6),#fff)}
+      .event h3{margin:0 0 6px;font-size:1rem}
+      .meta{color:var(--muted);font-size:0.9rem}
+      form{display:block;margin-top:12px}
+      label{display:block;margin:8px 0;font-size:0.95rem}
+      input[type=text], input[type=number]{width:100%;padding:8px;border-radius:6px;border:1px solid #e5e7eb}
+      button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+      .muted{color:var(--muted);font-size:0.9rem}
+      a.button-link{display:inline-block;padding:6px 10px;background:#eef2ff;color:var(--accent);border-radius:8px;text-decoration:none}
+      .actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+      @media (max-width:520px){.container{padding:12px}}
+    </style>
   </head>
   <body>
-    <h1>Event Booking</h1>
-    <%= yield %>
+    <div class="container">
+      <header>
+        <h1>Event Booking</h1>
+        <nav><a class="button-link" href="/">Home</a></nav>
+      </header>
+      <div class="card">
+        <%= yield %>
+      </div>
+    </div>
   </body>
 </html>
