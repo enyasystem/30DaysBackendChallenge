@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/composer",
   "name": "enya/day17-forum",
   "description": "Day 17 forum API - minimal",
   "require": {},

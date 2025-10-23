@@ -1,0 +1,17 @@
+<a href="/">Home</a>
+<h2>Events</h2>
+<ul>
+  <% events.each do |e| %>
+    <li>
+      <strong><a href="/events/<%= e[:id] %>"><%= e[:title] %></a></strong>
+      — capacity: <%= e[:capacity] %>, booked: <%= e[:booked] %>
+    </li>
+  <% end %>
+</ul>
+
+<h3>Create event</h3>
+<form action="/events" method="post">
+  <label>Title: <input name="title" required></label><br>
+  <label>Capacity: <input name="capacity" type="number" min="1" required></label><br>
+  <button type="submit">Create</button>
+</form>

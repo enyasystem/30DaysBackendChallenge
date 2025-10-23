@@ -1,0 +1,23 @@
+<a href="/events">Back to events</a>
+<h2><%= event.title %></h2>
+<p>Capacity: <%= event.capacity %></p>
+<p>Booked: <%= booked %></p>
+
+<h3>Bookings</h3>
+<ul>
+  <% bookings.each do |b| %>
+    <li>
+      <%= b.name %>
+      <form action="/events/<%= event.id %>/bookings/<%= b.id %>" method="post" style="display:inline">
+        <input type="hidden" name="_method" value="delete">
+        <button type="submit">Cancel</button>
+      </form>
+    </li>
+  <% end %>
+</ul>
+
+<h3>Book a seat</h3>
+<form action="/events/<%= event.id %>/book" method="post">
+  <label>Name: <input name="name" required></label>
+  <button type="submit">Book</button>
+</form>
