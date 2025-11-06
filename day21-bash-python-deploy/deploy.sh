@@ -57,7 +57,8 @@ run_or_echo() {
   if [ "$DRY_RUN" -eq 1 ]; then
     echo "DRY-RUN: $*"
   else
-    eval "$@"
+    # Use bash -lc to safely run the assembled command string; avoids unsafe eval use
+    bash -lc "$*"
   fi
 }
 

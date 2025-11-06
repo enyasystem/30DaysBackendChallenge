@@ -1,0 +1,36 @@
+name: Deploy to VPS (Day21 template)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Run remote deploy script
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          port: ${{ secrets.DEPLOY_PORT }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            set -e
+            cd ${{ secrets.TARGET_DIR }}
+            git fetch --all --prune
+            git checkout main
+            git reset --hard origin/main
+            # Run the deploy helper included in this repo; adjust flags to your needs
+            ./day21-bash-python-deploy/deploy.sh --dir . --branch main --restart-cmd "sudo systemctl restart myapp.service" --health-url "http://localhost:8080/health" --watcher ./day21-bash-python-deploy/watcher.py
+
+      - name: Done
+        run: echo "Deploy triggered" 

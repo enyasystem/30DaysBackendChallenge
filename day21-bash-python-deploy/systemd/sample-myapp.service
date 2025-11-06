@@ -1,0 +1,16 @@
+[Unit]
+Description=MyApp service (example)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/myapp
+ExecStart=/usr/bin/env bash -c 'cd /var/www/myapp && ./start.sh'
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+
+# Notes: Replace WorkingDirectory and ExecStart with the commands your app needs.
