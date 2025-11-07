@@ -1,0 +1,18 @@
+{
+  "name": "day22-node-redis-cache",
+  "version": "1.0.0",
+  "description": "Small Express app demonstrating Redis caching (cache-aside)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "NODE_ENV=development node index.js"
+  },
+  "keywords": ["node","redis","cache","express"],
+  "author": "Enya Elvis",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "redis": "^4.6.7",
+    "dotenv": "^16.0.3"
+  }
+}
