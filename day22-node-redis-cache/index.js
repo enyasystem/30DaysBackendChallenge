@@ -50,6 +50,21 @@ app.get('/item/:id', async (req, res) => {
   }
 });
 
+// List items endpoint: returns up to 50 items (mostly Africa / Nigeria in the mock dataset)
+// Optional query parameter: ?limit=20 (max 50)
+app.get('/item', async (req, res) => {
+  try {
+    metrics.requests += 1;
+    const q = Number(req.query.limit) || 50;
+    const limit = Math.max(1, Math.min(50, q));
+    const items = await db.listItems(limit);
+    return res.json({ count: items.length, items });
+  } catch (err) {
+    console.error('error in /item', err);
+    return res.status(500).json({ error: 'internal error' });
+  }
+});
+
 app.post('/cache/clear', async (req, res) => {
   const id = req.body && req.body.id;
   if (!id) return res.status(400).json({ error: 'id required' });
